@@ -8,6 +8,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 {
     //public data
     public static MapEditorManager singleton;
+    public enum Swatch { button0, button1, button2, button3, button4, button5 }
     //private data
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject saveAsDialog;
@@ -27,6 +28,10 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     [SerializeField] private GameObject UIPanel;
 
     private UnityAction confirmPropertiesCallback;
+
+    private Color[] swatches;
+
+    public Color currentBrushColor;
 
     #region public methods
 #if UNITY_STANDALONE
@@ -101,6 +106,16 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         CloseSubPanels();
         SetBrushPanelVisibility(false);
         EventManager.singleton.GrantFocus(pauseMenu.GetComponent<ModalPopup>());
+    }
+
+    public void InitSwatchColors()
+    {
+        swatches[0] = Color.red;
+        swatches[1] = Color.blue;
+        swatches[2] = Color.green;
+        swatches[3] = Color.yellow;
+        swatches[4] = Color.magenta;
+        swatches[5] = Color.cyan;
     }
 
     public void SetBrushPanelVisibility(bool visible)
@@ -212,9 +227,16 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         SetTerrainBrushesPanelActive(false);
     }
 
-    public void PressedGrassBrushButton()
+    public void PressedSwatchButton(int button )
     {
-        MapManager.singleton.SelectGrassBrush();
+        currentBrushColor = swatches[(int)button];
+        MapManager.singleton.SelectSwatch1Brush();
+        SetTerrainBrushesPanelActive(false);
+    }
+
+    public void PressedSwatch1Button()
+    {
+        MapManager.singleton.SelectSwatch1Brush();
         SetTerrainBrushesPanelActive(false);
     }
 
@@ -517,6 +539,8 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         }
     }
     void Start () {
+        swatches = new Color[6];
+        InitSwatchColors();
         Debug.Log("[MapEditorManager:Start]");
         MapManager.singleton.mapContext = MapManager.MapContext.MAP_EDITOR;
         //MapManager.singleton.LoadMap("test.bit");

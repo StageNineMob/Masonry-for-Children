@@ -514,6 +514,9 @@ public class MapManager : MonoBehaviour {
                     SetTileRoadProperty(mapTiles[tilePos], false);
                     hasChanged = true;
                     break;
+                case BrushType.NONE:
+                    Debug.LogError("[MapManager:GetBrush] Has Key, No brush type!");
+                    break;
             }
             //TODO: change tile's type, delete if eraser
         }
@@ -546,6 +549,9 @@ public class MapManager : MonoBehaviour {
                     Debug.Log("[MapManager:GetBrush] brushing new tile.");
                     InstantiateTile(_prefabs[_brushType], tilePos);
                     hasChanged = true;
+                    break;
+                case BrushType.NONE:
+                    Debug.LogError("[MapManager:GetBrush] No Key, No brush type!");
                     break;
             }
         }
@@ -1102,7 +1108,7 @@ public class MapManager : MonoBehaviour {
         _brushType = BrushType.ERASER;
     }
 
-    public void SelectGrassBrush()
+    public void SelectSwatch1Brush()
     {
         _brushType = BrushType.GRASS;
     }
