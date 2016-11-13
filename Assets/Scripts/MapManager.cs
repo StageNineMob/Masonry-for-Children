@@ -1196,9 +1196,7 @@ public class MapManager : MonoBehaviour {
     public void OverwriteTile(GameObject tile, GameObject prefab)
     {
         tile.GetComponent<SpriteRenderer>().sprite = prefab.GetComponent<SpriteRenderer>().sprite;
-        tile.GetComponent<SpriteRenderer>().color = prefab.GetComponent<SpriteRenderer>().color;
-        tile.GetComponent<TileListener>().terrainSprite.sprite = prefab.GetComponent<TileListener>().terrainSprite.sprite;
-        tile.GetComponent<TileListener>().terrainSprite.color = prefab.GetComponent<TileListener>().terrainSprite.color;
+        tile.GetComponent<SpriteRenderer>().color = MapEditorManager.singleton.currentBrushColor;
         // remove road before changing terrain type, so if any road stuff needs to cleaned up, we still know whether or not the tile has a road... resetting to definition will overwrite that
         tile.GetComponent<TileListener>().SetRoadProperty(false);
         tile.GetComponent<TileListener>().terrain = TerrainDefinition.GetDefinition(prefab.GetComponent<TileListener>().terrainType);
