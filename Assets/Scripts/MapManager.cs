@@ -548,6 +548,7 @@ public class MapManager : MonoBehaviour {
                 case BrushType.DESERT:
                     Debug.Log("[MapManager:GetBrush] brushing new tile.");
                     InstantiateTile(_prefabs[_brushType], tilePos);
+                    mapTiles[tilePos].GetComponent<SpriteRenderer>().color = MapEditorManager.singleton.currentBrushColor;
                     hasChanged = true;
                     break;
                 case BrushType.NONE:
