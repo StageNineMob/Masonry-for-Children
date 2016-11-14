@@ -1202,11 +1202,11 @@ public class MapManager : MonoBehaviour {
         tile.GetComponent<SpriteRenderer>().sprite = prefab.GetComponent<SpriteRenderer>().sprite;
         tile.GetComponent<TileListener>().mainColor = MapEditorManager.singleton.currentBrushColor;
         // remove road before changing terrain type, so if any road stuff needs to cleaned up, we still know whether or not the tile has a road... resetting to definition will overwrite that
-        tile.GetComponent<TileListener>().SetRoadProperty(false);
-        tile.GetComponent<TileListener>().terrain = TerrainDefinition.GetDefinition(prefab.GetComponent<TileListener>().terrainType);
-        tile.GetComponent<TileListener>().deployable = CombatManager.Faction.NONE;
+        //tile.GetComponent<TileListener>().SetRoadProperty(false);
+        //tile.GetComponent<TileListener>().terrain = TerrainDefinition.GetDefinition(prefab.GetComponent<TileListener>().terrainType);
+        //tile.GetComponent<TileListener>().deployable = CombatManager.Faction.NONE;
 
-        tile.GetComponent<TileListener>().PropertiesChanged();
+        //tile.GetComponent<TileListener>().PropertiesChanged();
     }
 
     public void DeleteTile(GameObject tile)
@@ -1228,40 +1228,40 @@ public class MapManager : MonoBehaviour {
     /// <param name="maxRange">The maximum distance from the origin to check</param>
     /// <param name="faction">The faction of the initiating unit, if pathing needs to avoid enemy units. If faction is NONE, unit collision is ignored</param>
     /// <param name="unitGameObject">The gameObject of the initiating unit, to determine movement type</param>
-    public static void PathingInternal(out LinkedList<PathfindingNode> doneTiles, LinkedList<PathfindingNode> unsearchedTiles, int maxRange, UnitHandler.PathingType pathingType, CombatManager.Faction faction, GameObject unitGameObject)
-    {
-        bool isAttack = Enum.IsDefined(typeof(UnitHandler.AttackType), (UnitHandler.AttackType)pathingType);
+    //public static void PathingInternal(out LinkedList<PathfindingNode> doneTiles, LinkedList<PathfindingNode> unsearchedTiles, int maxRange, UnitHandler.PathingType pathingType, CombatManager.Faction faction, GameObject unitGameObject)
+    //{
+    //    bool isAttack = Enum.IsDefined(typeof(UnitHandler.AttackType), (UnitHandler.AttackType)pathingType);
 
-        //  doneTiles:          Tiles checked for neighbors are moved from unsearchedTiles to here
-        doneTiles = new LinkedList<PathfindingNode>();
+    //    //  doneTiles:          Tiles checked for neighbors are moved from unsearchedTiles to here
+    //    doneTiles = new LinkedList<PathfindingNode>();
 
-        // Continue processing until unsearchedTiles is empty
-        while (unsearchedTiles.Count > 0)
-        {
-            // unsearchedTiles should be kept in order by distance,
-            // so First should always be the closest or tied for closest
-            TileListener curTile = unsearchedTiles.First.Value.destinationTile.GetComponent<TileListener>();
-            int distance = unsearchedTiles.First.Value.distance;
-            foreach (var edge in curTile.neighbors)
-            {
-                bool matchFound = false;
-                bool shouldInsert = true;
-                // Check that this neighbor is within range and that the neighbor isn't occupied by an enemy unit
-                if (distance + edge.cost[pathingType] <= maxRange && !edge.tile.GetComponent<TileListener>().IsOccupiedByEnemy(faction))
-                {
-                    // Loop through doneTiles to see if this was already found
-                    PathingCheckRedundantDoneEntry(doneTiles, pathingType, distance, edge, ref matchFound, ref shouldInsert);
+    //    // Continue processing until unsearchedTiles is empty
+    //    while (unsearchedTiles.Count > 0)
+    //    {
+    //        // unsearchedTiles should be kept in order by distance,
+    //        // so First should always be the closest or tied for closest
+    //        TileListener curTile = unsearchedTiles.First.Value.destinationTile.GetComponent<TileListener>();
+    //        int distance = unsearchedTiles.First.Value.distance;
+    //        foreach (var edge in curTile.neighbors)
+    //        {
+    //            bool matchFound = false;
+    //            bool shouldInsert = true;
+    //            // Check that this neighbor is within range and that the neighbor isn't occupied by an enemy unit
+    //            if (distance + edge.cost[pathingType] <= maxRange && !edge.tile.GetComponent<TileListener>().IsOccupiedByEnemy(faction))
+    //            {
+    //                // Loop through doneTiles to see if this was already found
+    //                PathingCheckRedundantDoneEntry(doneTiles, pathingType, distance, edge, ref matchFound, ref shouldInsert);
 
-                    // Loop through unsearchedTiles to insert this neighbor and/or remove duplicates
-                    PathingAttemptInsertIntoUnsearchedTiles(doneTiles, unsearchedTiles, pathingType, unitGameObject, isAttack, distance, edge, matchFound, ref shouldInsert);
-                }
-            }
-            // Remove first from unsearched list, add to done list
-            // MAYBEDO: Is it better to insert it in a specific location?
-            doneTiles.AddFirst(unsearchedTiles.First.Value);
-            unsearchedTiles.RemoveFirst();
-        }
-    }
+    //                // Loop through unsearchedTiles to insert this neighbor and/or remove duplicates
+    //                PathingAttemptInsertIntoUnsearchedTiles(doneTiles, unsearchedTiles, pathingType, unitGameObject, isAttack, distance, edge, matchFound, ref shouldInsert);
+    //            }
+    //        }
+    //        // Remove first from unsearched list, add to done list
+    //        // MAYBEDO: Is it better to insert it in a specific location?
+    //        doneTiles.AddFirst(unsearchedTiles.First.Value);
+    //        unsearchedTiles.RemoveFirst();
+    //    }
+    //}
 
     public Texture2D MapPreview(bool preview = false)
     {
@@ -1382,34 +1382,34 @@ public class MapManager : MonoBehaviour {
     /// <param name="edge"></param>
     /// <param name="matchFound"></param>
     /// <param name="shouldInsert"></param>
-    private static void PathingCheckRedundantDoneEntry(LinkedList<PathfindingNode> doneTiles, UnitHandler.PathingType pathingType, int distance, TileEdge edge, ref bool matchFound, ref bool shouldInsert)
-    {
-        for (LinkedListNode<PathfindingNode> node = doneTiles.First; node != null; node = node.Next)
-        {
-            if (edge.tile == node.Value.destinationTile)
-            {
-                matchFound = true;
-                //found previously searched tile, check for shorter path.
-                //(9/9/2015) this is now possible because tile mods can make tiles go directly to doneTiles.
-                if (edge.cost[pathingType] + distance < node.Value.distance)
-                {
-                    doneTiles.Remove(node);
-                }
-                else
-                {
-                    shouldInsert = false;
-                }
+    //private static void PathingCheckRedundantDoneEntry(LinkedList<PathfindingNode> doneTiles, UnitHandler.PathingType pathingType, int distance, TileEdge edge, ref bool matchFound, ref bool shouldInsert)
+    //{
+    //    for (LinkedListNode<PathfindingNode> node = doneTiles.First; node != null; node = node.Next)
+    //    {
+    //        if (edge.tile == node.Value.destinationTile)
+    //        {
+    //            matchFound = true;
+    //            //found previously searched tile, check for shorter path.
+    //            //(9/9/2015) this is now possible because tile mods can make tiles go directly to doneTiles.
+    //            if (edge.cost[pathingType] + distance < node.Value.distance)
+    //            {
+    //                doneTiles.Remove(node);
+    //            }
+    //            else
+    //            {
+    //                shouldInsert = false;
+    //            }
 
-                //shouldInsert = false;
-            }
+    //            //shouldInsert = false;
+    //        }
 
-            // If you've found a match, break out of the loop.
-            if (matchFound)
-            {
-                break;
-            }
-        }
-    }
+    //        // If you've found a match, break out of the loop.
+    //        if (matchFound)
+    //        {
+    //            break;
+    //        }
+    //    }
+    //}
 
     /// <summary>
     /// TODO: Summarize this
@@ -1424,49 +1424,49 @@ public class MapManager : MonoBehaviour {
     /// <param name="matchFound"></param>
     /// <param name="shouldInsert"></param>
     /// <returns></returns>
-    private static void PathingAttemptInsertIntoUnsearchedTiles(LinkedList<PathfindingNode> doneTiles, LinkedList<PathfindingNode> unsearchedTiles, UnitHandler.PathingType pathingType, GameObject unitGameObject, bool isAttack, int distance, TileEdge edge, bool matchFound, ref bool shouldInsert)
-    {
-        for (LinkedListNode<PathfindingNode> node = unsearchedTiles.First; ; node = node.Next)
-        {
-            // If either a match hasn't been found or you still need to insert the tile, keep looping
-            if (!shouldInsert && matchFound)
-            {
-                break;
-            }
-            // If node == null, we've reached the end of the list
-            if (node == null)
-            {
-                // If we haven't inserted the tile yet, add it to the end
-                if (shouldInsert)
-                {
-                    PathingInsertTileSorted(doneTiles, unsearchedTiles, pathingType, unitGameObject, isAttack, distance, edge, null);
-                }
-                // Either way, break out of the loop
-                break;
-            }
-            // We're keeping the list in order.
-            //      If node's distance is greater than the total distance to this tile
-            //      and we haven't added it or ruled it out yet, insert it before this node.
-            if (distance + edge.cost[pathingType] < node.Value.distance && shouldInsert)
-            {
-                PathingInsertTileSorted(doneTiles, unsearchedTiles, pathingType, unitGameObject, isAttack, distance, edge, node);
-                shouldInsert = false;
-            }
-            // If we find a duplicate...
-            if (edge.tile == node.Value.destinationTile)
-            {
-                // If we've passed the distance of the new tile...
-                if (distance + edge.cost[pathingType] < node.Value.distance)
-                {
-                    // This tile is old. Get rid of it!
-                    unsearchedTiles.Remove(node);
-                }
-                // Otherwise, the tile already exists as close or closer.
-                // Either way, we're done!
-                break;
-            }
-        }
-    }
+    //private static void PathingAttemptInsertIntoUnsearchedTiles(LinkedList<PathfindingNode> doneTiles, LinkedList<PathfindingNode> unsearchedTiles, UnitHandler.PathingType pathingType, GameObject unitGameObject, bool isAttack, int distance, TileEdge edge, bool matchFound, ref bool shouldInsert)
+    //{
+    //    for (LinkedListNode<PathfindingNode> node = unsearchedTiles.First; ; node = node.Next)
+    //    {
+    //        // If either a match hasn't been found or you still need to insert the tile, keep looping
+    //        if (!shouldInsert && matchFound)
+    //        {
+    //            break;
+    //        }
+    //        // If node == null, we've reached the end of the list
+    //        if (node == null)
+    //        {
+    //            // If we haven't inserted the tile yet, add it to the end
+    //            if (shouldInsert)
+    //            {
+    //                PathingInsertTileSorted(doneTiles, unsearchedTiles, pathingType, unitGameObject, isAttack, distance, edge, null);
+    //            }
+    //            // Either way, break out of the loop
+    //            break;
+    //        }
+    //        // We're keeping the list in order.
+    //        //      If node's distance is greater than the total distance to this tile
+    //        //      and we haven't added it or ruled it out yet, insert it before this node.
+    //        if (distance + edge.cost[pathingType] < node.Value.distance && shouldInsert)
+    //        {
+    //            PathingInsertTileSorted(doneTiles, unsearchedTiles, pathingType, unitGameObject, isAttack, distance, edge, node);
+    //            shouldInsert = false;
+    //        }
+    //        // If we find a duplicate...
+    //        if (edge.tile == node.Value.destinationTile)
+    //        {
+    //            // If we've passed the distance of the new tile...
+    //            if (distance + edge.cost[pathingType] < node.Value.distance)
+    //            {
+    //                // This tile is old. Get rid of it!
+    //                unsearchedTiles.Remove(node);
+    //            }
+    //            // Otherwise, the tile already exists as close or closer.
+    //            // Either way, we're done!
+    //            break;
+    //        }
+    //    }
+    //}
 
     /// <summary>
     /// TODO: Summarize this
@@ -1479,33 +1479,33 @@ public class MapManager : MonoBehaviour {
     /// <param name="distance"></param>
     /// <param name="edge"></param>
     /// <param name="node"></param>
-    private static void PathingInsertTileSorted(LinkedList<PathfindingNode> doneTiles, LinkedList<PathfindingNode> unsearchedTiles, UnitHandler.PathingType pathingType, GameObject unitGameObject, bool isAttack, int distance, TileEdge edge, LinkedListNode<PathfindingNode> node)
-    {
-        switch (edge.tile.GetComponent<TileListener>().GetPathingType(unitGameObject, isAttack))
-        {
-            case TileModifier.PathingType.CLEAR:
-                if (node != null)
-                {
-                    unsearchedTiles.AddBefore(node, new PathfindingNode(unsearchedTiles.First.Value, edge.cost[pathingType], edge.tile));
-//                    unsearchedTiles.AddBefore(node, new KeyValuePair<int, GameObject>(distance + edge.cost[pathingType], edge.tile));
-                }
-                else
-                {
-                    unsearchedTiles.AddLast(new PathfindingNode(unsearchedTiles.First.Value, edge.cost[pathingType], edge.tile));
-//                    unsearchedTiles.AddLast(new KeyValuePair<int, GameObject>(distance + edge.cost[pathingType], edge.tile));
-                }
-                break;
-            case TileModifier.PathingType.STOP:
-                doneTiles.AddLast(new PathfindingNode(unsearchedTiles.First.Value, edge.cost[pathingType], edge.tile));
-//                doneTiles.AddLast(new KeyValuePair<int, GameObject>(distance + edge.cost[pathingType], edge.tile));
-                break;
-            case TileModifier.PathingType.IMPASSABLE:
-                break;
-            default:
-                Debug.LogError("[MapManager:PathingInsertTileSorted] Invalid Tile Modifier Type found");
-                break;
-        }
-    }
+//    private static void PathingInsertTileSorted(LinkedList<PathfindingNode> doneTiles, LinkedList<PathfindingNode> unsearchedTiles, UnitHandler.PathingType pathingType, GameObject unitGameObject, bool isAttack, int distance, TileEdge edge, LinkedListNode<PathfindingNode> node)
+//    {
+//        switch (edge.tile.GetComponent<TileListener>().GetPathingType(unitGameObject, isAttack))
+//        {
+//            case TileModifier.PathingType.CLEAR:
+//                if (node != null)
+//                {
+//                    unsearchedTiles.AddBefore(node, new PathfindingNode(unsearchedTiles.First.Value, edge.cost[pathingType], edge.tile));
+////                    unsearchedTiles.AddBefore(node, new KeyValuePair<int, GameObject>(distance + edge.cost[pathingType], edge.tile));
+//                }
+//                else
+//                {
+//                    unsearchedTiles.AddLast(new PathfindingNode(unsearchedTiles.First.Value, edge.cost[pathingType], edge.tile));
+////                    unsearchedTiles.AddLast(new KeyValuePair<int, GameObject>(distance + edge.cost[pathingType], edge.tile));
+//                }
+//                break;
+//            case TileModifier.PathingType.STOP:
+//                doneTiles.AddLast(new PathfindingNode(unsearchedTiles.First.Value, edge.cost[pathingType], edge.tile));
+////                doneTiles.AddLast(new KeyValuePair<int, GameObject>(distance + edge.cost[pathingType], edge.tile));
+//                break;
+//            case TileModifier.PathingType.IMPASSABLE:
+//                break;
+//            default:
+//                Debug.LogError("[MapManager:PathingInsertTileSorted] Invalid Tile Modifier Type found");
+//                break;
+//        }
+//    }
 
     private void ClearTileHolder(bool preview = false)
     {
