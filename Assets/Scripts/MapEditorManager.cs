@@ -29,7 +29,15 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     private UnityAction confirmPropertiesCallback;
 
-    private Color[] swatches;
+    [SerializeField] private GameObject swatchButton0;
+    [SerializeField] private GameObject swatchButton1;
+    [SerializeField] private GameObject swatchButton2;
+    [SerializeField] private GameObject swatchButton3;
+    [SerializeField] private GameObject swatchButton4;
+    [SerializeField] private GameObject swatchButton5;
+    private GameObject[] swatchButtons;
+
+    private Color[] swatchColors;
 
     public Color currentBrushColor;
 
@@ -110,12 +118,29 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     public void InitSwatchColors()
     {
-        swatches[0] = Color.red;
-        swatches[1] = Color.blue;
-        swatches[2] = Color.green;
-        swatches[3] = Color.yellow;
-        swatches[4] = Color.magenta;
-        swatches[5] = Color.cyan;
+        if(swatchColors.Length != swatchButtons.Length)
+        {
+            Debug.LogError("[MapEditorManager:InitSwatchColors] swatchColors.Length != swatchButtons.Length");
+        }
+        swatchColors[0] = Color.red;
+        swatchColors[1] = Color.magenta;
+        swatchColors[2] = Color.blue;
+        swatchColors[3] = Color.cyan;
+        swatchColors[4] = Color.green;
+        swatchColors[5] = Color.yellow;
+
+        swatchButtons[0] = swatchButton0;
+        swatchButtons[1] = swatchButton1;
+        swatchButtons[2] = swatchButton2;
+        swatchButtons[3] = swatchButton3;
+        swatchButtons[4] = swatchButton4;
+        swatchButtons[5] = swatchButton5;
+
+        int buttonCount = swatchButtons.Length;
+        for (int ii = 0; ii < buttonCount; ++ii)
+        {
+            swatchButtons[ii].GetComponent<Image>().color = swatchColors[ii];
+        }
     }
 
     public void SetBrushPanelVisibility(bool visible)
@@ -229,7 +254,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     public void PressedSwatchButton(int button )
     {
-        currentBrushColor = swatches[(int)button];
+        currentBrushColor = swatchColors[(int)button];
         MapManager.singleton.SelectSwatch1Brush();
         SetTerrainBrushesPanelActive(false);
     }
@@ -539,7 +564,8 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         }
     }
     void Start () {
-        swatches = new Color[6];
+        swatchColors = new Color[6];
+        swatchButtons = new GameObject[6];
         InitSwatchColors();
         Debug.Log("[MapEditorManager:Start]");
         MapManager.singleton.mapContext = MapManager.MapContext.MAP_EDITOR;
