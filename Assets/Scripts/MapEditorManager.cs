@@ -213,6 +213,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         if (MapManager.singleton.LoadMap(fileName)) 
         {
             // Things that need to happen only when a map is successfully loaded go here
+            SetBrushPanelVisibility(true);
             EventManager.singleton.ReturnFocus();
             ResetToolSelection();
         }
