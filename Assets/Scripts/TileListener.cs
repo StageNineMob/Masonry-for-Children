@@ -17,7 +17,7 @@ public class TileListener : MonoBehaviour
 
     public bool previewMap;
 
-    public Color mainColor;
+    private Color _mainColor;
 
     private IntVector2 _gridPos;
     private GameObject _occupant;
@@ -31,7 +31,6 @@ public class TileListener : MonoBehaviour
     //        return TerrainDefinition.GetDefinition(terrainType);
     //    }
     //}
-
 
     public GameObject occupant
     {
@@ -58,6 +57,19 @@ public class TileListener : MonoBehaviour
         get
         {
             return _gridPos;
+        }
+    }
+
+    public Color mainColor
+    {
+        get
+        {
+            return _mainColor;
+        }
+        set
+        {
+            _mainColor = value;
+            GetComponent<SpriteRenderer>().color = _mainColor;
         }
     }
 

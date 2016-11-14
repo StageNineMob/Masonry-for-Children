@@ -548,7 +548,7 @@ public class MapManager : MonoBehaviour {
                 case BrushType.DESERT:
                     Debug.Log("[MapManager:GetBrush] brushing new tile.");
                     InstantiateTile(_prefabs[_brushType], tilePos);
-                    mapTiles[tilePos].GetComponent<SpriteRenderer>().color = MapEditorManager.singleton.currentBrushColor;
+                    mapTiles[tilePos].GetComponent<TileListener>().mainColor = MapEditorManager.singleton.currentBrushColor;
                     hasChanged = true;
                     break;
                 case BrushType.NONE:
@@ -1200,7 +1200,7 @@ public class MapManager : MonoBehaviour {
     public void OverwriteTile(GameObject tile, GameObject prefab)
     {
         tile.GetComponent<SpriteRenderer>().sprite = prefab.GetComponent<SpriteRenderer>().sprite;
-        tile.GetComponent<SpriteRenderer>().color = MapEditorManager.singleton.currentBrushColor;
+        tile.GetComponent<TileListener>().mainColor = MapEditorManager.singleton.currentBrushColor;
         // remove road before changing terrain type, so if any road stuff needs to cleaned up, we still know whether or not the tile has a road... resetting to definition will overwrite that
         tile.GetComponent<TileListener>().SetRoadProperty(false);
         tile.GetComponent<TileListener>().terrain = TerrainDefinition.GetDefinition(prefab.GetComponent<TileListener>().terrainType);
