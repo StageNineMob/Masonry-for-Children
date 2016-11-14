@@ -29,6 +29,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     private UnityAction confirmPropertiesCallback;
 
+    [SerializeField] private GameObject terrainBrushesButton;
     [SerializeField] private GameObject swatchButton0;
     [SerializeField] private GameObject swatchButton1;
     [SerializeField] private GameObject swatchButton2;
@@ -255,6 +256,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     public void PressedSwatchButton(int button )
     {
         currentBrushColor = swatchColors[(int)button];
+        terrainBrushesButton.GetComponent<Image>().color = currentBrushColor;
         MapManager.singleton.SelectSwatch1Brush();
         SetTerrainBrushesPanelActive(false);
     }
