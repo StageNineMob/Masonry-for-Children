@@ -93,9 +93,9 @@ public class MapManager : MonoBehaviour {
     }
 
     //consts and static data
-    public const string MAP_FILE_EXTENSION = ".bit";
-    public const string MAP_DIRECTORY = "/maps/";
-    private static readonly string defaultMapFileName = "test.bit";
+    public const string PICTURE_FILE_EXTENSION = ".pic";
+    public const string PICTURE_DIRECTORY = "/pics/";
+    private static readonly string defaultPictureFileName = "test.pic";
     private static readonly Vector3 defaultCameraPosition = new Vector3(0f,0f,-10f);
     private const int DEFAULT_CAMERA_ZOOM_LEVEL = 5;
     private const int PREVIEW_WIDTH = 256;
@@ -915,8 +915,8 @@ public class MapManager : MonoBehaviour {
         AdjustPanSpeed();
 
         // test saving a map file
-        SaveCurrentMapAs(defaultMapFileName);
-        SerializableMap load = FileManager.singleton.Load<SerializableMap>(defaultMapFileName);
+        SaveCurrentMapAs(defaultPictureFileName);
+        SerializableMap load = FileManager.singleton.Load<SerializableMap>(defaultPictureFileName);
         Debug.Log("[MapManager:CreateDefaultMap] " + load.ToString());
     }
 
@@ -943,13 +943,13 @@ public class MapManager : MonoBehaviour {
     public void SaveCurrentMapAs(string fileName)
     {
         Debug.Log("[MapManager:SaveCurrentMapAs] Changing current map to " + fileName);
-        if (FileManager.FileExtensionIs(fileName, MAP_FILE_EXTENSION))
+        if (FileManager.FileExtensionIs(fileName, PICTURE_FILE_EXTENSION))
         {
             _currentMapFileName = fileName;
         }
         else
         {
-            _currentMapFileName = fileName + MAP_FILE_EXTENSION;
+            _currentMapFileName = fileName + PICTURE_FILE_EXTENSION;
         }
         SaveCurrentMap();
     }
@@ -957,18 +957,18 @@ public class MapManager : MonoBehaviour {
     public void SaveCurrentMap()
     {
         Debug.Log("[MapManager:SaveCurrentMap] Saving current map " + _currentMapFileName);
-        FileManager.singleton.EnsureDirectoryExists(MAP_DIRECTORY);
+        FileManager.singleton.EnsureDirectoryExists(PICTURE_DIRECTORY);
         SerializableMap map = SerializeMap();
-        FileManager.singleton.Save<SerializableMap>(map, MAP_DIRECTORY + _currentMapFileName);
+        FileManager.singleton.Save<SerializableMap>(map, PICTURE_DIRECTORY + _currentMapFileName);
         hasChanged = false;
     }
 
     public SerializableMap SerializeMap()
     {
         SerializableMap map = new SerializableMap();
-        map.mapName = mapName;
-        map.armyPointLimit = armyPointLimit;
-        Debug.Log("[MapManager:SaveCurrentMap] Saved Map Name: " + map.mapName);
+        //map.mapName = mapName;
+        //map.armyPointLimit = armyPointLimit;
+        //Debug.Log("[MapManager:SaveCurrentMap] Saved Map Name: " + map.mapName);
         map.tiles = new SerializableTile[mapTiles.Count];
         int ii = 0;
         foreach (var pair in mapTiles)
@@ -976,9 +976,10 @@ public class MapManager : MonoBehaviour {
             map.tiles[ii] = new SerializableTile();
             map.tiles[ii].x = pair.Key.x;
             map.tiles[ii].y = pair.Key.y;
-            map.tiles[ii].deployable = pair.Value.GetComponent<TileListener>().deployable;
-            map.tiles[ii].type = pair.Value.GetComponent<TileListener>().terrain.type;
-            map.tiles[ii].isRoad = pair.Value.GetComponent<TileListener>().HasTerrainProperty(TerrainDefinition.TerrainProperty.ROAD);
+            map.tiles[ii].mainColor = new SerializableColor(pair.Value.GetComponent<TileListener>().mainColor);
+            //map.tiles[ii].deployable = pair.Value.GetComponent<TileListener>().deployable;
+            //map.tiles[ii].type = pair.Value.GetComponent<TileListener>().terrain.type;
+            //map.tiles[ii].isRoad = pair.Value.GetComponent<TileListener>().HasTerrainProperty(TerrainDefinition.TerrainProperty.ROAD);
             ii++;
         }
 
@@ -988,11 +989,11 @@ public class MapManager : MonoBehaviour {
     public bool LoadMap(string fileName, bool preview = false)
     {
         string correctedFileName = fileName;
-        if (!FileManager.FileExtensionIs(fileName, MAP_FILE_EXTENSION))
+        if (!FileManager.FileExtensionIs(fileName, PICTURE_FILE_EXTENSION))
         {
-            correctedFileName += MAP_FILE_EXTENSION;
+            correctedFileName += PICTURE_FILE_EXTENSION;
         }
-        SerializableMap load = FileManager.singleton.Load<SerializableMap>(MAP_DIRECTORY + correctedFileName);
+        SerializableMap load = FileManager.singleton.Load<SerializableMap>(PICTURE_DIRECTORY + correctedFileName);
         if (load == null)
             return false;//TODO: Throw exceptions?
         //if file was opened successfully, change the current map file path name
@@ -1000,16 +1001,16 @@ public class MapManager : MonoBehaviour {
         {
             _currentMapFileName = correctedFileName;
 
-            armyPointLimit = load.armyPointLimit;
-            mapName = load.mapName;
-            Debug.Log("[MapManager:LoadMap] Loaded Map Name: " + mapName);
+            //armyPointLimit = load.armyPointLimit;
+            //mapName = load.mapName;
+            //Debug.Log("[MapManager:LoadMap] Loaded Map Name: " + mapName);
 
             DeserializeMap(load);
         }
         else
         {
-            previewArmyPointLimit = load.armyPointLimit;
-            previewMapName = load.mapName;
+            //previewArmyPointLimit = load.armyPointLimit;
+            //previewMapName = load.mapName;
             DeserializeMap(load, PREVIEW_MODE);
         }
         return true;
@@ -1030,51 +1031,53 @@ public class MapManager : MonoBehaviour {
         }
         foreach (var tile in load.tiles)
         {
-            switch (tile.type)
-            {
-                default:
-                case TerrainDefinition.TerrainType.GRASS:
-                    toInstantiate = _prefabs[BrushType.GRASS];
-                    break;
-                case TerrainDefinition.TerrainType.ROCK:
-                    toInstantiate = _prefabs[BrushType.ROCK];
-                    break;
-                case TerrainDefinition.TerrainType.TREE:
-                    toInstantiate = _prefabs[BrushType.TREE];
-                    break;
-                case TerrainDefinition.TerrainType.DESERT:
-                    toInstantiate = _prefabs[BrushType.DESERT];
-                    break;
-                case TerrainDefinition.TerrainType.WASTELAND:
-                    toInstantiate = _prefabs[BrushType.WASTELAND];
-                    break;
-                case TerrainDefinition.TerrainType.WATER:
-                    toInstantiate = _prefabs[BrushType.WATER];
-                    break;
-                case TerrainDefinition.TerrainType.RUINS:
-                    toInstantiate = _prefabs[BrushType.RUINS];
-                    break;
-                case TerrainDefinition.TerrainType.MARSH:
-                    toInstantiate = _prefabs[BrushType.MARSH];
-                    break;
-                case TerrainDefinition.TerrainType.SWAMP:
-                    toInstantiate = _prefabs[BrushType.SWAMP];
-                    break;
-                case TerrainDefinition.TerrainType.MOUNTAIN:
-                    toInstantiate = _prefabs[BrushType.MOUNTAIN];
-                    break;
-                case TerrainDefinition.TerrainType.JUNGLE:
-                    toInstantiate = _prefabs[BrushType.JUNGLE];
-                    break;
-                case TerrainDefinition.TerrainType.SNOW:
-                    toInstantiate = _prefabs[BrushType.SNOW];
-                    break;
-            }
-            IntVector2 pos = new IntVector2(tile.x, tile.y);
+            //switch (tile.type)
+            //{
+            //    default:
+            //    case TerrainDefinition.TerrainType.GRASS:
+            //        toInstantiate = _prefabs[BrushType.GRASS];
+            //        break;
+            //    case TerrainDefinition.TerrainType.ROCK:
+            //        toInstantiate = _prefabs[BrushType.ROCK];
+            //        break;
+            //    case TerrainDefinition.TerrainType.TREE:
+            //        toInstantiate = _prefabs[BrushType.TREE];
+            //        break;
+            //    case TerrainDefinition.TerrainType.DESERT:
+            //        toInstantiate = _prefabs[BrushType.DESERT];
+            //        break;
+            //    case TerrainDefinition.TerrainType.WASTELAND:
+            //        toInstantiate = _prefabs[BrushType.WASTELAND];
+            //        break;
+            //    case TerrainDefinition.TerrainType.WATER:
+            //        toInstantiate = _prefabs[BrushType.WATER];
+            //        break;
+            //    case TerrainDefinition.TerrainType.RUINS:
+            //        toInstantiate = _prefabs[BrushType.RUINS];
+            //        break;
+            //    case TerrainDefinition.TerrainType.MARSH:
+            //        toInstantiate = _prefabs[BrushType.MARSH];
+            //        break;
+            //    case TerrainDefinition.TerrainType.SWAMP:
+            //        toInstantiate = _prefabs[BrushType.SWAMP];
+            //        break;
+            //    case TerrainDefinition.TerrainType.MOUNTAIN:
+            //        toInstantiate = _prefabs[BrushType.MOUNTAIN];
+            //        break;
+            //    case TerrainDefinition.TerrainType.JUNGLE:
+            //        toInstantiate = _prefabs[BrushType.JUNGLE];
+            //        break;
+            //    case TerrainDefinition.TerrainType.SNOW:
+            //        toInstantiate = _prefabs[BrushType.SNOW];
+            //        break;
+            //}
 
+            IntVector2 pos = new IntVector2(tile.x, tile.y);
+            toInstantiate = _prefabs[BrushType.GRASS];
             var instance = InstantiateTile(toInstantiate, pos, preview);
-            SetDeployZone(instance, tile.deployable);
-            instance.GetComponent<TileListener>().SetRoadProperty(tile.isRoad);
+            instance.GetComponent<TileListener>().mainColor = new Color(tile.mainColor.r, tile.mainColor.g, tile.mainColor.b, tile.mainColor.a);
+            //SetDeployZone(instance, tile.deployable);
+            //instance.GetComponent<TileListener>().SetRoadProperty(tile.isRoad);
         }
 
         CreateTileNodeGraph(preview);
@@ -1854,7 +1857,7 @@ public class MapManager : MonoBehaviour {
             Debug.Log("MapManager checking out.");
             GameObject.Destroy(gameObject);
         }
-        _currentMapFileName = defaultMapFileName;
+        _currentMapFileName = defaultPictureFileName;
     }
 
     void Start()
@@ -1887,14 +1890,14 @@ public class MapManager : MonoBehaviour {
 [Serializable]
 public class SerializableMap
 {
-    public string mapName;
-    public uint armyPointLimit;
+    //public string mapName;
+    //public uint armyPointLimit;
     public SerializableTile[] tiles;
 
     #region public methods
     public override string ToString()
     {
-        string output = mapName;
+        string output = "";
         foreach(var tile in tiles)
         {
             output += "\n   " + tile.ToString();

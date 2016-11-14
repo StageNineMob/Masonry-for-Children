@@ -273,7 +273,7 @@ public class MainMenu : MonoBehaviour, IModalFocusHolder {
         };
         
         EventManager.singleton.GrantFocus(openFileDialog.GetComponent<ModalPopup>());
-        openFileDialog.GetComponent<UIOpenFileDialog>().PopulateFileInfo(MapManager.MAP_DIRECTORY, MapManager.MAP_FILE_EXTENSION);
+        openFileDialog.GetComponent<UIOpenFileDialog>().PopulateFileInfo(MapManager.PICTURE_DIRECTORY, MapManager.PICTURE_FILE_EXTENSION);
     }
 
     public void ShowOpenRedArmyDialog()

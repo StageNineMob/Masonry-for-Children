@@ -157,6 +157,7 @@ public class FileManager : MonoBehaviour {
         if (singleton == null)
         {
             Debug.Log("FileManager checking in.");
+            print(Application.persistentDataPath);
             singleton = this;
             binaryFormatter = new BinaryFormatter();
         }

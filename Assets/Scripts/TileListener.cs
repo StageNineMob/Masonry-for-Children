@@ -17,6 +17,8 @@ public class TileListener : MonoBehaviour
 
     public bool previewMap;
 
+    public Color mainColor;
+
     private IntVector2 _gridPos;
     private GameObject _occupant;
     private Color defaultColor, moveHighlightColor, attackHighlightColor;
@@ -483,12 +485,35 @@ public class SerializableTile
 {
     public int x;
     public int y;
-    public TerrainDefinition.TerrainType type;
-    public CombatManager.Faction deployable;
-    public bool isRoad;
+    public SerializableColor mainColor;
+    //public TerrainDefinition.TerrainType type;
+    //public CombatManager.Faction deployable;
+    //public bool isRoad;
 
     public override string ToString()
     {
-        return "(" + x + ", " + y + "), " + type;
+        return "(" + x + ", " + y + "), "+ mainColor;
+    }
+}
+
+[Serializable]
+public class SerializableColor
+{
+    public float r;
+    public float g;
+    public float b;
+    public float a;
+
+    public SerializableColor(Color color)
+    {
+        r = color.r;
+        b = color.b;
+        g = color.g;
+        a = color.a;
+    }
+
+    public override string ToString()
+    {
+        return "(" + r + ", " + g + ", " + b + ", " + a + "), " + " rgba";
     }
 }

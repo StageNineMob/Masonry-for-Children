@@ -163,11 +163,11 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         EventManager.singleton.GrantFocus(saveAsDialog.GetComponent<ModalPopup>());
         if (MapManager.singleton.currentFileName == "")
         {
-            saveAsDialog.GetComponent<UISaveAsDialog>().PopulateFileInfo(MapManager.MAP_DIRECTORY, MapManager.MAP_FILE_EXTENSION, MapManager.singleton.mapName);
+            saveAsDialog.GetComponent<UISaveAsDialog>().PopulateFileInfo(MapManager.PICTURE_DIRECTORY, MapManager.PICTURE_FILE_EXTENSION, MapManager.singleton.mapName);
         }
         else
         {
-            saveAsDialog.GetComponent<UISaveAsDialog>().PopulateFileInfo(MapManager.MAP_DIRECTORY, MapManager.MAP_FILE_EXTENSION, MapManager.singleton.currentFileName);
+            saveAsDialog.GetComponent<UISaveAsDialog>().PopulateFileInfo(MapManager.PICTURE_DIRECTORY, MapManager.PICTURE_FILE_EXTENSION, MapManager.singleton.currentFileName);
         }
     }
 
@@ -188,18 +188,18 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         };
 
         EventManager.singleton.GrantFocus(openFileDialog.GetComponent<ModalPopup>());
-        openFileDialog.GetComponent<UIOpenFileDialog>().PopulateFileInfo(MapManager.MAP_DIRECTORY, MapManager.MAP_FILE_EXTENSION);
+        openFileDialog.GetComponent<UIOpenFileDialog>().PopulateFileInfo(MapManager.PICTURE_DIRECTORY, MapManager.PICTURE_FILE_EXTENSION);
     }
 
-    public void CheckForForceMapProperties(UnityAction callback)
-    {
-        if (MapManager.singleton.mapName == "" || MapManager.singleton.armyPointLimit == 0)
-        {
-            ShowMapPropertiesPopup(callback);
-        }
-        else
-            callback();
-    }
+    //public void CheckForForceMapProperties(UnityAction callback)
+    //{
+    //    if (MapManager.singleton.mapName == "" || MapManager.singleton.armyPointLimit == 0)
+    //    {
+    //        ShowMapPropertiesPopup(callback);
+    //    }
+    //    else
+    //        callback();
+    //}
 
     public void SaveMapAs(string fileName)
     {
@@ -369,10 +369,10 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         CloseSubPanels();
     }
 
-    public void MapNameFieldChanged(string blank)
-    {
-        ValidateMapProperties();
-    }
+    //public void MapNameFieldChanged(string blank)
+    //{
+    //    ValidateMapProperties();
+    //}
 
     public void MapNameFieldInputCompleted()
     {
@@ -402,7 +402,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         }
         Debug.Log("[MapEditorManager:ArmyLimitFieldChanged] New point max: " + tempPointLimit);
 
-        ValidateMapProperties();
+        //ValidateMapProperties();
     }
 
     public void ArmyLimitFieldInputCompleted()
@@ -416,10 +416,10 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 #endif
     }
 
-    public void PressedMapPropertiesButton()
-    {
-        ShowMapPropertiesPopup(null);
-    }
+    //public void PressedMapPropertiesButton()
+    //{
+    //    ShowMapPropertiesPopup(null);
+    //}
 
     public void PressedConfirmMapPropertiesButton()
     {
@@ -495,35 +495,35 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     #region private methods
 
-    private void ValidateMapProperties()
-    {
-        if (mapNameInputField.text == "" || tempPointLimit == 0)
-        {
-            // MAYBEDO: Make sure that army point limit allows for at least one unit?
-            mapPropertiesConfirmButton.interactable = false;
-        }
-        else
-        {
-            mapPropertiesConfirmButton.interactable = true;
-        }
-    }
+    //private void ValidateMapProperties()
+    //{
+    //    if (mapNameInputField.text == "" || tempPointLimit == 0)
+    //    {
+    //        // MAYBEDO: Make sure that army point limit allows for at least one unit?
+    //        mapPropertiesConfirmButton.interactable = false;
+    //    }
+    //    else
+    //    {
+    //        mapPropertiesConfirmButton.interactable = true;
+    //    }
+    //}
 
 
-    private void ShowMapPropertiesPopup(UnityAction callback)
-    {
-        ResetInputFields();
-        ValidateMapProperties();
-        confirmPropertiesCallback = callback;
-        EventManager.singleton.GrantFocus(mapPropertiesPopup);
-    }
+    //private void ShowMapPropertiesPopup(UnityAction callback)
+    //{
+    //    //ResetInputFields();
+    //    ValidateMapProperties();
+    //    confirmPropertiesCallback = callback;
+    //    EventManager.singleton.GrantFocus(mapPropertiesPopup);
+    //}
 
-    private void ResetInputFields()
-    {
-        mapNameInputField.text = MapManager.singleton.mapName;
-        armyPointLimitInputField.text = MapManager.singleton.armyPointLimit.ToString();
-        Debug.Log("[MapEditorManager:ResetInputFields] Set input field text to " + mapNameInputField.text);
-        //MapManager.singleton.hasChanged = false;
-    }
+    //private void ResetInputFields()
+    //{
+    //    //mapNameInputField.text = MapManager.singleton.mapName;
+    //    //armyPointLimitInputField.text = MapManager.singleton.armyPointLimit.ToString();
+    //    //Debug.Log("[MapEditorManager:ResetInputFields] Set input field text to " + mapNameInputField.text);
+    //    //MapManager.singleton.hasChanged = false;
+    //}
 
     #if UNITY_STANDALONE
 

@@ -58,20 +58,13 @@ public class MapEditorMenu : ModalPopup {
         }
         else
         {
-            //launch the save as dialog
-            MapEditorManager.singleton.CheckForForceMapProperties(new UnityAction(()=>
-            {
-                MapEditorManager.singleton.ShowSaveAsDialog();
-            }));
+            MapEditorManager.singleton.ShowSaveAsDialog();
         }
     }
 
     public void SaveAsButtonPressed()
     {
-        MapEditorManager.singleton.CheckForForceMapProperties(new UnityAction(() =>
-        {
-            MapEditorManager.singleton.ShowSaveAsDialog();
-        }));
+        MapEditorManager.singleton.ShowSaveAsDialog();
     }
 
     public void OpenButtonPressed()
@@ -106,11 +99,7 @@ public class MapEditorMenu : ModalPopup {
             {
                 // Save changes
                 CloseMenu();
-                MapEditorManager.singleton.CheckForForceMapProperties(new UnityAction(()=>
-                {
-                    SaveAction(action);
-                }));
-                //SaveAction(action);
+                SaveAction(action);
                 // Do new action
             }), KeyCode.Y,
             "No", new UnityAction(() =>
