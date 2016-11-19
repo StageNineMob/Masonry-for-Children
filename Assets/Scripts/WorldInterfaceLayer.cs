@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System;
 
-public class WorldInterfaceLayer : MonoBehaviour,IBeginDragHandler, IDragHandler, IPointerDownHandler, IPointerUpHandler
+public class WorldInterfaceLayer : MonoBehaviour,IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler, IPointerUpHandler
 {
     public enum DragMode
     {
@@ -67,6 +68,11 @@ public class WorldInterfaceLayer : MonoBehaviour,IBeginDragHandler, IDragHandler
         }
 
         mouseLastPos = Input.mousePosition;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        MapManager.singleton.EndBrush();
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -156,5 +162,6 @@ public class WorldInterfaceLayer : MonoBehaviour,IBeginDragHandler, IDragHandler
             GameObject.Destroy(gameObject);
         }
     }
-#endregion
+
+    #endregion
 }

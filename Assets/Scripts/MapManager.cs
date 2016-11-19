@@ -118,7 +118,7 @@ public class MapManager : MonoBehaviour {
     public GameObject openTilePrefab;
     public GameObject blockedTilePrefab;
     [SerializeField] public GameObject tileHightlightBorderPrefab;
-
+    public IntVector2 lastTileBrushed;
     public int defaultColumns = 10;
     public int defaultRows = 10;
 
@@ -414,16 +414,22 @@ public class MapManager : MonoBehaviour {
     public void GetBrush(Vector3 brushPosition)
     {
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(brushPosition);
-
-        Debug.Log("[MapManager:GetBrush] You brushed on " + GetGridPositionAt(worldPos));
-
         var tilePos = GetGridPositionAt(worldPos);
+        Debug.Log("[MapManager:GetBrush] You brushed on " + tilePos);
+
         if (BrushTypeIsDeploymentZone() && (_symmetrySetting != SymmetrySetting.NONE) && tilePos == GetSymmetryTile(tilePos))
         {
             //Do not brush deploment zones on symmetry points in brush mode
             return;
         }
         BrushTile(tilePos);
+        if (lastTileBrushed == null)
+            ;
+        else if ((lastTileBrushed - tilePos).magnitude <= 1)
+            ;
+        else
+            DrawLine(lastTileBrushed, tilePos);
+        lastTileBrushed = tilePos;
 
         // TODO: special case logic
         var symmetryTile = GetSymmetryTile(tilePos);
@@ -433,6 +439,20 @@ public class MapManager : MonoBehaviour {
             BrushTile(symmetryTile);
             ToggleZoneColor();
         }
+    }
+
+    private void DrawLine(IntVector2 start, IntVector2 end)
+    {
+        IntVector2 offset = end - start;
+        int lineLength = offset.magnitude;
+        IntVector2 primaryDirection;
+        
+//        TODO: IMPLEMENT THIS
+    }
+
+    public void EndBrush()
+    {
+        lastTileBrushed = null;
     }
 
     private bool BrushTypeIsDeploymentZone()
