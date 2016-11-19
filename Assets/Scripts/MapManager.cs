@@ -118,10 +118,10 @@ public class MapManager : MonoBehaviour {
     public GameObject openTilePrefab;
     public GameObject blockedTilePrefab;
     [SerializeField] public GameObject tileHightlightBorderPrefab;
-    public IntVector2 lastTileBrushed;
+
     public int defaultColumns = 10;
     public int defaultRows = 10;
-
+    public IntVector2 lastTileBrushed;
     public bool hasChanged = false;
 
     public string mapName = "", previewMapName = "";
