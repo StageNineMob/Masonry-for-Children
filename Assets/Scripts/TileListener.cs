@@ -7,7 +7,7 @@ using System;
 public class TileListener : MonoBehaviour
 {
     public List<TileEdge> neighbors;
-    //public List<TileModifier> modifiers;
+    public List<TileModifier> modifiers;
     //public TerrainDefinition.TerrainType terrainType;
     //public TerrainDefinition terrain;
     //public CombatManager.Faction deployable = CombatManager.Faction.NONE;
@@ -246,7 +246,7 @@ public class TileListener : MonoBehaviour
     //        }
     //    }
     //}
-     
+
     //public void AddRoadSegment(IntVector2 direction)
     //{
     //    if (streetSigns.ContainsKey(direction))
@@ -277,21 +277,21 @@ public class TileListener : MonoBehaviour
     //    }
     //}
 
-    //public void AddModifier(TileModifier newMod)
-    //{
-    //    if (modifiers != null)
-    //    {
-    //        if (!modifiers.Contains(newMod))
-    //        {
-    //            modifiers.Add(newMod);
-    //        }
-    //    }
-    //}
+    public void AddModifier(TileModifier newMod)
+    {
+        if (modifiers != null)
+        {
+            if (!modifiers.Contains(newMod))
+            {
+                modifiers.Add(newMod);
+            }
+        }
+    }
 
-    //public void RemoveModifier(TileModifier modToRemove)
-    //{
-    //    modifiers.Remove(modToRemove);
-    //}
+    public void RemoveModifier(TileModifier modToRemove)
+    {
+        modifiers.Remove(modToRemove);
+    }
 
     //public TileModifier.PathingType GetPathingType(GameObject unit, bool isAttack)
     //{

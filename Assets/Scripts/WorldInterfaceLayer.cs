@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class WorldInterfaceLayer : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler, IPointerUpHandler
+public class WorldInterfaceLayer : MonoBehaviour,IBeginDragHandler, IDragHandler, IPointerDownHandler, IPointerUpHandler
 {
     public enum DragMode
     {
         CAMERA,
-        BRUSH,
-        UNIT
+        BRUSH
     }
 
     public static WorldInterfaceLayer singleton;
@@ -24,7 +23,6 @@ public class WorldInterfaceLayer : MonoBehaviour, IBeginDragHandler, IDragHandle
     private DragMode _dragMode = DragMode.CAMERA;
     private Vector3 mouseLastPos;
     private bool isDragging = false;
-    private GameObject draggingUnit = null;
     private Vector3 pointerDownLocation;
 
     [SerializeField] private GraphicRaycaster raycaster;
@@ -37,28 +35,10 @@ public class WorldInterfaceLayer : MonoBehaviour, IBeginDragHandler, IDragHandle
         }
     }
 
-#region public methods
+    #region public methods
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        draggingUnit = null;
-        if(_dragMode == DragMode.UNIT)
-        {
-            Debug.Log("[WorldInterfaceLayer:OnBeginDrag] DragMode is unit, checking for unit");
-            var tile = MapManager.singleton.GetTileAtScreenPos(pointerDownLocation);
-            if (tile != null)
-            {
-                if (tile.GetComponent<TileListener>().occupied)
-                {
-                    Debug.Log("[WorldInterfaceLayer:OnBeginDrag] Unit found, passing OnBeginDrag");
-                    if (tile.GetComponent<TileListener>().occupant.GetComponent<UnitHandler>().isDraggable)
-                    {
-                        draggingUnit = tile.GetComponent<TileListener>().occupant;
-                        draggingUnit.GetComponent<DraggableOnBoardUnit>().OnBeginDrag(eventData);
-                    }
-                }
-            }
-        }
         //clickBeganPos = Input.mousePosition;
         mouseLastPos = Input.mousePosition;
         isDragging = true;
@@ -74,41 +54,19 @@ public class WorldInterfaceLayer : MonoBehaviour, IBeginDragHandler, IDragHandle
         _dragMode = DragMode.BRUSH;
     }
 
-    public void SetUnitMode()
-    {
-        _dragMode = DragMode.UNIT;
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (draggingUnit != null)
-        {
-            draggingUnit.GetComponent<Draggable>().OnEndDrag(eventData);
-            draggingUnit = null;
-        }
-    }
-
     public void OnDrag(PointerEventData eventData)
     {
-        if (draggingUnit == null)
+        switch (_dragMode)
         {
-            switch (_dragMode)
-            {
-                case DragMode.CAMERA:
-                case DragMode.UNIT:
-                    MapManager.singleton.CameraPan(mouseLastPos - Input.mousePosition);
-                    break;
-                case DragMode.BRUSH:
-                    MapManager.singleton.GetBrush(Input.mousePosition);
-                    break;
-            }
+            case DragMode.CAMERA:
+                MapManager.singleton.CameraPan(mouseLastPos - Input.mousePosition);
+                break;
+            case DragMode.BRUSH:
+                MapManager.singleton.GetBrush(Input.mousePosition);
+                break;
+        }
 
-            mouseLastPos = Input.mousePosition;
-        }
-        else
-        {
-            draggingUnit.GetComponent<Draggable>().OnDrag(eventData);
-        }
+        mouseLastPos = Input.mousePosition;
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -122,7 +80,6 @@ public class WorldInterfaceLayer : MonoBehaviour, IBeginDragHandler, IDragHandle
         switch (_dragMode)
         {
             case DragMode.CAMERA:
-            case DragMode.UNIT:
                 break;
             case DragMode.BRUSH:
                 MapManager.singleton.GetBrush(Input.mousePosition);

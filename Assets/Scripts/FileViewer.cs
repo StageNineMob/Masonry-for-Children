@@ -204,7 +204,7 @@ public class FileViewer : MonoBehaviour
         string textToPrint = "";
         switch(_extension)
         {
-            case ".bit":
+            case MapManager.PICTURE_FILE_EXTENSION:
                 {
                     metadataThumbnail.color = Color.white;
 
@@ -224,44 +224,8 @@ public class FileViewer : MonoBehaviour
                     }
                     break;
                 }
-            case ".jrk":
-                {
-                    metadataThumbnail.color = Color.white;
-
-                    var previewArmy = ArmyManager.singleton.LoadArmy(filename);
-                    textToPrint += previewArmy.armyName + Environment.NewLine;
-                    textToPrint += Environment.NewLine + "Total Point Value: " + previewArmy.pointTotal;
-                    metadataText.text = textToPrint;
-
-                    var battleMageType = previewArmy.GetBattleMage();
-                    //TODO: Army Manager should retrieve the correct texture.
-                    break;
-                }
-            case ".fyt":
-                {
-                    metadataThumbnail.color = Color.white;
-
-                    var fileLastWriteTime = FileManager.singleton.GetLastWriteTime(_directory + filename);
-                    var previewGame = FileManager.singleton.Load<SavedGame>(_directory + filename);
-
-                    textToPrint += fileLastWriteTime.ToString() + Environment.NewLine;
-                    textToPrint += Environment.NewLine + "Play Time: " + FormatFloatTime(previewGame.gameTimer);
-                    metadataText.text = textToPrint;
-
-                    MapManager.singleton.DeserializeMap(previewGame.map, MapManager.PREVIEW_MODE);
-                    if(MapManager.singleton.mapContext == MapManager.MapContext.COMBAT)
-                    {
-                        CombatManager.singleton.SetAllUnitsVisibility(false);
-                    }
-                    var previewTexture = MapManager.singleton.MapPreview(MapManager.PREVIEW_MODE);
-                    if (MapManager.singleton.mapContext == MapManager.MapContext.COMBAT)
-                    {
-                        CombatManager.singleton.SetAllUnitsVisibility(true);
-                    }
-                    metadataThumbnail.sprite = Sprite.Create(previewTexture, new Rect(0, 0, previewTexture.width, previewTexture.height), Vector2.one * 0.5f);
-                    break;
-                }
             default:
+                // MAYBEDO: blow up?
                 break;
         }
     }

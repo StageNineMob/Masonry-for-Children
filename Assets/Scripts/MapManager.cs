@@ -163,7 +163,6 @@ public class MapManager : MonoBehaviour {
 
     private Dictionary<BrushType,GameObject> _prefabs;
     [SerializeField] private GameObject grassPrefab, rockPrefab, treePrefab, desertPrefab, wastelandPrefab, waterPrefab, ruinsPrefab, marshPrefab, swampPrefab, mountainPrefab, junglePrefab, snowPrefab, _roadIndicatorPrefab, _roadSegmentPrefab;
-    private Dictionary<BrushType, CombatManager.Faction> _factions;
 
     private MapContext _mapContext;
 
@@ -233,20 +232,6 @@ public class MapManager : MonoBehaviour {
             symmetrySetting = SymmetrySetting.NONE;
             switch (_mapContext)
             {
-                case MapContext.COMBAT:
-                    // set camera mode to main camera
-                    // immediately load the queued map
-
-                    //MAYBEDO:just get a map from Game loader?
-                    if(GameLoader.singleton.startUpMode == GameLoader.StartUpMode.NEW_GAME)
-                    {
-                        LoadMap(_currentMapFileName);
-                    }
-                    else
-                    {
-                        //TODO: Load from saved game in progr;
-                    }
-                    break;
                 case MapContext.MAP_EDITOR:
                     // set camera mode to main camera
                     // immediately set up a new map
@@ -371,10 +356,6 @@ public class MapManager : MonoBehaviour {
             //combat context:
             switch (_mapContext)
             {
-                case MapContext.COMBAT:
-                    mapTiles[tilePos].GetComponent<TileListener>().TileClickedCombat();
-                    break;
-
                 default:
                     break;
             }
@@ -497,23 +478,23 @@ public class MapManager : MonoBehaviour {
                     OverwriteTile(mapTiles[tilePos], _prefabs[_brushType]);
                     hasChanged = true;
                     break;
-                case BrushType.RED_ZONE:
-                case BrushType.BLUE_ZONE:
-                case BrushType.CLEAR_ZONE:
-                    Debug.Log("[MapManager:GetBrush] brushing tile mod.");
-                    SetDeployZone(mapTiles[tilePos], _factions[_brushType]);
-                    hasChanged = true;
-                    break;
-                case BrushType.PAVE:
-                    Debug.Log("[MapManager:GetBrush] paving tile.");
-                    SetTileRoadProperty(mapTiles[tilePos], true);
-                    hasChanged = true;
-                    break;
-                case BrushType.UNPAVE:
-                    Debug.Log("[MapManager:GetBrush] unpaving tile.");
-                    SetTileRoadProperty(mapTiles[tilePos], false);
-                    hasChanged = true;
-                    break;
+                //case BrushType.RED_ZONE:
+                //case BrushType.BLUE_ZONE:
+                //case BrushType.CLEAR_ZONE:
+                //    Debug.Log("[MapManager:GetBrush] brushing tile mod.");
+                //    SetDeployZone(mapTiles[tilePos], _factions[_brushType]);
+                //    hasChanged = true;
+                //    break;
+                //case BrushType.PAVE:
+                //    Debug.Log("[MapManager:GetBrush] paving tile.");
+                //    SetTileRoadProperty(mapTiles[tilePos], true);
+                //    hasChanged = true;
+                //    break;
+                //case BrushType.UNPAVE:
+                //    Debug.Log("[MapManager:GetBrush] unpaving tile.");
+                //    SetTileRoadProperty(mapTiles[tilePos], false);
+                //    hasChanged = true;
+                //    break;
                 case BrushType.NONE:
                     Debug.LogError("[MapManager:GetBrush] Has Key, No brush type!");
                     break;
@@ -527,13 +508,13 @@ public class MapManager : MonoBehaviour {
             switch(_brushType)
             {
                 case BrushType.ERASER:
-                case BrushType.RED_ZONE:
-                case BrushType.BLUE_ZONE:
-                case BrushType.CLEAR_ZONE:
-                case BrushType.PAVE:
-                case BrushType.UNPAVE:
-                    Debug.Log("[MapManager:GetBrush] No tile to erase or mod.");
-                    break;
+                //case BrushType.RED_ZONE:
+                //case BrushType.BLUE_ZONE:
+                //case BrushType.CLEAR_ZONE:
+                //case BrushType.PAVE:
+                //case BrushType.UNPAVE:
+                //    Debug.Log("[MapManager:GetBrush] No tile to erase or mod.");
+                //    break;
                 case BrushType.GRASS:
                 case BrushType.TREE:
                 case BrushType.ROCK:
@@ -1356,20 +1337,11 @@ public class MapManager : MonoBehaviour {
 
     private void MouseEnterTile(IntVector2 tileLocation)
     {
-        if (_mapContext == MapContext.COMBAT)
-        {
-            CombatManager.singleton.MouseOverTile(GetTileAt(tileLocation));
-        }
         //Debug.Log("[MapManager:MouseEnterTile] You moused over " + tileLocation);
     }
 
     private void MouseExitTile(IntVector2 tileLocation)
     {
-        if (_mapContext == MapContext.COMBAT)
-        {
-            CombatManager.singleton.MouseOff();
-            //TODO: don't kill the path when confirming knight beat my face in
-        }
         //Debug.Log("[MapManager:MouseExitTile] You stopped mousing over " + tileLocation);
     }
 
@@ -1532,37 +1504,6 @@ public class MapManager : MonoBehaviour {
             previewTileHolder = new GameObject("PreviewTiles").transform;
             previewTileHolder.gameObject.SetActive(false);
         }
-    }
-
-    /// <summary>
-    /// Sets the faction deployment permissions and changes the deployment zone coloration.
-    /// </summary>
-    /// <param name="tile"></param>
-    /// <param name="faction"></param>
-    private void SetDeployZone(GameObject tile, CombatManager.Faction faction)
-    {
-        //set factions deploy permission
-        var tL = tile.GetComponent<TileListener>();
-        tL.deployable = faction;
-        //set color of tile highlight for deploy phase and in editor.
-        switch (faction)
-        {
-            case CombatManager.Faction.RED:
-                tL.HighlightAttack();
-                break;
-            case CombatManager.Faction.BLUE:
-                tL.HighlightMove();
-                break;
-            case CombatManager.Faction.NONE:
-                tL.RestoreDefaultColor();
-                break;
-        }
-    }
-
-    private void SetTileRoadProperty(GameObject tile, bool isRoad)
-    {
-        var tL = tile.GetComponent<TileListener>();
-        tL.SetRoadProperty(isRoad);
     }
 
     private void ZoomCameraToFitMap(bool preview = false)
@@ -1801,7 +1742,6 @@ public class MapManager : MonoBehaviour {
         currentCamera = Camera.main;
         previewTexture = new RenderTexture(PREVIEW_WIDTH, PREVIEW_HEIGHT, PREVIEW_DEPTH);
         _prefabs = new Dictionary<BrushType, GameObject>();
-        _factions = new Dictionary<BrushType, CombatManager.Faction>();
         borderHighlights = new List<GameObject>();
         _prefabs[BrushType.GRASS] = grassPrefab;
         _prefabs[BrushType.DESERT] = desertPrefab;
@@ -1815,9 +1755,6 @@ public class MapManager : MonoBehaviour {
         _prefabs[BrushType.MOUNTAIN] = mountainPrefab;
         _prefabs[BrushType.JUNGLE] = junglePrefab;
         _prefabs[BrushType.SNOW] = snowPrefab;
-        _factions[BrushType.RED_ZONE] = CombatManager.Faction.RED;
-        _factions[BrushType.BLUE_ZONE] = CombatManager.Faction.BLUE;
-        _factions[BrushType.CLEAR_ZONE] = CombatManager.Faction.NONE;
         lastMouseOver = null;
     }
 
