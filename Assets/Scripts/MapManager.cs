@@ -121,7 +121,7 @@ public class MapManager : MonoBehaviour {
 
     public int defaultColumns = 10;
     public int defaultRows = 10;
-    public IntVector2 lastTileBrushed;
+    public IntVector2 lastTileBrushed = null;
     public bool hasChanged = false;
 
     public string mapName = "", previewMapName = "";
@@ -443,11 +443,20 @@ public class MapManager : MonoBehaviour {
 
     private void DrawLine(IntVector2 start, IntVector2 end)
     {
+        if (end == start)
+            return;
         IntVector2 offset = end - start;
         int lineLength = offset.magnitude;
-        IntVector2 primaryDirection;
-        
-//        TODO: IMPLEMENT THIS
+        IntVector2 primaryDirection = IntVector2.GetVectorFromCase(IntVector2.GetDirectionFromVector(offset));
+        IntVector2 secondaryOffset = offset - (lineLength * primaryDirection);
+        int secondaryLength = secondaryOffset.magnitude;
+        IntVector2 secondaryDirection = IntVector2.GetVectorFromCase(IntVector2.GetDirectionFromVector(secondaryOffset));
+
+        for(int ii = 1; ii < lineLength; ii++)
+        {
+            int secondaryPortion = (int)((((float)ii * secondaryLength) / lineLength) +0.5f);
+            BrushTile(start + ii * primaryDirection + secondaryPortion * secondaryDirection);
+        }
     }
 
     public void EndBrush()
@@ -1754,7 +1763,6 @@ public class MapManager : MonoBehaviour {
             }
             mapPreviewTiles.Clear();
         }
-        
     }
 
     private void InitializeFields()

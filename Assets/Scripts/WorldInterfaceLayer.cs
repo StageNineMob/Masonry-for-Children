@@ -72,7 +72,6 @@ public class WorldInterfaceLayer : MonoBehaviour,IBeginDragHandler, IDragHandler
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        MapManager.singleton.EndBrush();
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -88,6 +87,7 @@ public class WorldInterfaceLayer : MonoBehaviour,IBeginDragHandler, IDragHandler
             case DragMode.CAMERA:
                 break;
             case DragMode.BRUSH:
+                MapManager.singleton.EndBrush();
                 MapManager.singleton.GetBrush(Input.mousePosition);
                 break;
         }
