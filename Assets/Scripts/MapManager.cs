@@ -27,23 +27,7 @@ public class MapManager : MonoBehaviour {
     {
         NONE,
         ERASER,
-        GRASS,
-        ROCK,
-        TREE,
-        DESERT,
-        WASTELAND,
-        WATER,
-        RUINS,
-        MARSH,
-        SWAMP,
-        MOUNTAIN,
-        JUNGLE,
-        SNOW,
-        RED_ZONE,
-        BLUE_ZONE,
-        CLEAR_ZONE,
-        PAVE,
-        UNPAVE
+        TILE,
     }
 
     //subclasses
@@ -162,7 +146,7 @@ public class MapManager : MonoBehaviour {
     private SymmetrySetting _symmetrySetting = SymmetrySetting.NONE;
 
     private Dictionary<BrushType,GameObject> _prefabs;
-    [SerializeField] private GameObject grassPrefab, rockPrefab, treePrefab, desertPrefab, wastelandPrefab, waterPrefab, ruinsPrefab, marshPrefab, swampPrefab, mountainPrefab, junglePrefab, snowPrefab, _roadIndicatorPrefab, _roadSegmentPrefab;
+    [SerializeField] private GameObject tilePrefab;
 
     private MapContext _mapContext;
 
@@ -249,22 +233,6 @@ public class MapManager : MonoBehaviour {
         get
         {
             return _mapContext;
-        }
-    }
-
-    public GameObject roadIndicatorPrefab
-    {
-        get
-        {
-            return _roadIndicatorPrefab;
-        }
-    }
-
-    public GameObject roadSegmentPrefab
-    {
-        get
-        {
-            return _roadSegmentPrefab;
         }
     }
 
@@ -417,11 +385,6 @@ public class MapManager : MonoBehaviour {
         var tilePos = GetGridPositionAt(worldPos);
         Debug.Log("[MapManager:GetBrush] You brushed on " + tilePos);
 
-        if (BrushTypeIsDeploymentZone() && (_symmetrySetting != SymmetrySetting.NONE) && tilePos == GetSymmetryTile(tilePos))
-        {
-            //Do not brush deploment zones on symmetry points in brush mode
-            return;
-        }
         BrushTile(tilePos);
         if (lastTileBrushed == null)
             ;
@@ -435,9 +398,7 @@ public class MapManager : MonoBehaviour {
         var symmetryTile = GetSymmetryTile(tilePos);
         if (symmetryTile != tilePos)
         {
-            ToggleZoneColor();
             BrushTile(symmetryTile);
-            ToggleZoneColor();
         }
     }
 
@@ -464,22 +425,6 @@ public class MapManager : MonoBehaviour {
         lastTileBrushed = null;
     }
 
-    private bool BrushTypeIsDeploymentZone()
-    {
-        return (_brushType == BrushType.RED_ZONE || _brushType == BrushType.BLUE_ZONE);
-    }
-
-    private void ToggleZoneColor()
-    {
-        if (BrushTypeIsDeploymentZone())
-        {
-            if (_brushType == BrushType.RED_ZONE)
-                _brushType = BrushType.BLUE_ZONE;
-            else
-                _brushType = BrushType.RED_ZONE;
-        }
-    }
-
     public void BrushTile(IntVector2 tilePos)
     {
         if (mapTiles.ContainsKey(tilePos))
@@ -491,39 +436,11 @@ public class MapManager : MonoBehaviour {
                     DeleteTile(mapTiles[tilePos]);
                     hasChanged = true;
                     break;
-                case BrushType.GRASS:
-                case BrushType.TREE:
-                case BrushType.DESERT:
-                case BrushType.ROCK:
-                case BrushType.WASTELAND:
-                case BrushType.WATER:
-                case BrushType.RUINS:
-                case BrushType.MARSH:
-                case BrushType.SWAMP:
-                case BrushType.MOUNTAIN:
-                case BrushType.JUNGLE:
-                case BrushType.SNOW:
+                case BrushType.TILE:
                     Debug.Log("[MapManager:GetBrush] brushing over tile.");
                     OverwriteTile(mapTiles[tilePos], _prefabs[_brushType]);
                     hasChanged = true;
                     break;
-                //case BrushType.RED_ZONE:
-                //case BrushType.BLUE_ZONE:
-                //case BrushType.CLEAR_ZONE:
-                //    Debug.Log("[MapManager:GetBrush] brushing tile mod.");
-                //    SetDeployZone(mapTiles[tilePos], _factions[_brushType]);
-                //    hasChanged = true;
-                //    break;
-                //case BrushType.PAVE:
-                //    Debug.Log("[MapManager:GetBrush] paving tile.");
-                //    SetTileRoadProperty(mapTiles[tilePos], true);
-                //    hasChanged = true;
-                //    break;
-                //case BrushType.UNPAVE:
-                //    Debug.Log("[MapManager:GetBrush] unpaving tile.");
-                //    SetTileRoadProperty(mapTiles[tilePos], false);
-                //    hasChanged = true;
-                //    break;
                 case BrushType.NONE:
                     Debug.LogError("[MapManager:GetBrush] Has Key, No brush type!");
                     break;
@@ -537,25 +454,9 @@ public class MapManager : MonoBehaviour {
             switch(_brushType)
             {
                 case BrushType.ERASER:
-                //case BrushType.RED_ZONE:
-                //case BrushType.BLUE_ZONE:
-                //case BrushType.CLEAR_ZONE:
-                //case BrushType.PAVE:
-                //case BrushType.UNPAVE:
-                //    Debug.Log("[MapManager:GetBrush] No tile to erase or mod.");
-                //    break;
-                case BrushType.GRASS:
-                case BrushType.TREE:
-                case BrushType.ROCK:
-                case BrushType.WASTELAND:
-                case BrushType.WATER:
-                case BrushType.RUINS:
-                case BrushType.MARSH:
-                case BrushType.SWAMP:
-                case BrushType.MOUNTAIN:
-                case BrushType.JUNGLE:
-                case BrushType.SNOW:
-                case BrushType.DESERT:
+                    Debug.Log("[MapManager:GetBrush] No tile to erase or mod.");
+                    break;
+                case BrushType.TILE:
                     Debug.Log("[MapManager:GetBrush] brushing new tile.");
                     InstantiateTile(_prefabs[_brushType], tilePos);
                     mapTiles[tilePos].GetComponent<TileListener>().mainColor = MapEditorManager.singleton.currentBrushColor;
@@ -1083,7 +984,7 @@ public class MapManager : MonoBehaviour {
             //}
 
             IntVector2 pos = new IntVector2(tile.x, tile.y);
-            toInstantiate = _prefabs[BrushType.GRASS];
+            toInstantiate = _prefabs[BrushType.TILE];
             var instance = InstantiateTile(toInstantiate, pos, preview);
             instance.GetComponent<TileListener>().mainColor = new Color(tile.mainColor.r, tile.mainColor.g, tile.mainColor.b, tile.mainColor.a);
             //SetDeployZone(instance, tile.deployable);
@@ -1124,87 +1025,7 @@ public class MapManager : MonoBehaviour {
 
     public void SelectSwatch1Brush()
     {
-        _brushType = BrushType.GRASS;
-    }
-
-    public void SelectDesertBrush()
-    {
-        _brushType = BrushType.DESERT;
-    }
-
-    public void SelectRockBrush()
-    {
-        _brushType = BrushType.ROCK;
-    }
-
-    public void SelectTreeBrush()
-    {
-        _brushType = BrushType.TREE;
-    }
-
-    public void SelectWastelandBrush()
-    {
-        _brushType = BrushType.WASTELAND;
-    }
-
-    public void SelectWaterBrush()
-    {
-        _brushType = BrushType.WATER;
-    }
-
-    public void SelectRuinsBrush()
-    {
-        _brushType = BrushType.RUINS;
-    }
-
-    public void SelectMarshBrush()
-    {
-        _brushType = BrushType.MARSH;
-    }
-
-    public void SelectSwampBrush()
-    {
-        _brushType = BrushType.SWAMP;
-    }
-
-    public void SelectMountainBrush()
-    {
-        _brushType = BrushType.MOUNTAIN;
-    }
-
-    public void SelectJungleBrush()
-    {
-        _brushType = BrushType.JUNGLE;
-    }
-
-    public void SelectSnowBrush()
-    {
-        _brushType = BrushType.SNOW;
-    }
-
-    public void SelectRedDeploymentZoneBrush()
-    {
-        _brushType = BrushType.RED_ZONE;
-    }
-
-    public void SelectBlueDeploymentZoneBrush()
-    {
-        _brushType = BrushType.BLUE_ZONE;
-    }
-
-    public void SelectClearDeploymentZoneBrush()
-    {
-        _brushType = BrushType.CLEAR_ZONE;
-    }
-
-    public void SelectPaveBrush()
-    {
-        _brushType = BrushType.PAVE;
-    }
-
-    public void SelectUnpaveBrush()
-    {
-        _brushType = BrushType.UNPAVE;
+        _brushType = BrushType.TILE;
     }
 
     public void OverwriteTile(GameObject tile, GameObject prefab)
@@ -1771,18 +1592,7 @@ public class MapManager : MonoBehaviour {
         previewTexture = new RenderTexture(PREVIEW_WIDTH, PREVIEW_HEIGHT, PREVIEW_DEPTH);
         _prefabs = new Dictionary<BrushType, GameObject>();
         borderHighlights = new List<GameObject>();
-        _prefabs[BrushType.GRASS] = grassPrefab;
-        _prefabs[BrushType.DESERT] = desertPrefab;
-        _prefabs[BrushType.TREE] = treePrefab;
-        _prefabs[BrushType.ROCK] = rockPrefab;
-        _prefabs[BrushType.WASTELAND] = wastelandPrefab;
-        _prefabs[BrushType.WATER] = waterPrefab;
-        _prefabs[BrushType.RUINS] = ruinsPrefab;
-        _prefabs[BrushType.MARSH] = marshPrefab;
-        _prefabs[BrushType.SWAMP] = swampPrefab;
-        _prefabs[BrushType.MOUNTAIN] = mountainPrefab;
-        _prefabs[BrushType.JUNGLE] = junglePrefab;
-        _prefabs[BrushType.SNOW] = snowPrefab;
+        _prefabs[BrushType.TILE] = tilePrefab;
         lastMouseOver = null;
     }
 
