@@ -87,7 +87,7 @@ public class WorldInterfaceLayer : MonoBehaviour,IBeginDragHandler, IDragHandler
             case DragMode.CAMERA:
                 break;
             case DragMode.BRUSH:
-                MapManager.singleton.EndBrush();
+                MapManager.singleton.BeginBrush();
                 MapManager.singleton.GetBrush(Input.mousePosition);
                 break;
         }
@@ -96,13 +96,17 @@ public class WorldInterfaceLayer : MonoBehaviour,IBeginDragHandler, IDragHandler
     public void OnPointerUp(PointerEventData eventData)
     {
         Debug.Log("You stopped clicking on WIL.");
-        if(isDragging)
+        if (isDragging)
         {
             isDragging = false;
         }
         else
         {
             MapManager.singleton.GetClick(Input.mousePosition);
+        }
+        if (DragMode.BRUSH == _dragMode)
+        {
+            MapManager.singleton.EndBrush();
         }
     }
 

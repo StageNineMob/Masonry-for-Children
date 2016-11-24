@@ -30,6 +30,13 @@ public class MapManager : MonoBehaviour {
         TILE,
     }
 
+    public enum ToolPalette
+    {
+        NONE,
+        POINT,
+        LINE,
+    }
+
     //subclasses
     public class PathfindingNode
     {
@@ -106,6 +113,7 @@ public class MapManager : MonoBehaviour {
     public int defaultColumns = 10;
     public int defaultRows = 10;
     public IntVector2 lastTileBrushed = null;
+    public IntVector2 firstTileBrushed = null;
     public bool hasChanged = false;
 
     public string mapName = "", previewMapName = "";
@@ -143,6 +151,7 @@ public class MapManager : MonoBehaviour {
     private RenderTexture previewTexture;
 
     private BrushType _brushType;
+    private ToolPalette _currentTool = ToolPalette.LINE;
     private SymmetrySetting _symmetrySetting = SymmetrySetting.NONE;
 
     private Dictionary<BrushType,GameObject> _prefabs;
@@ -383,29 +392,43 @@ public class MapManager : MonoBehaviour {
     {
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(brushPosition);
         var tilePos = GetGridPositionAt(worldPos);
+        if (firstTileBrushed == null)
+        {
+            firstTileBrushed = tilePos;
+        }
         Debug.Log("[MapManager:GetBrush] You brushed on " + tilePos);
 
-        BrushTile(tilePos);
-        if (lastTileBrushed == null)
-            ;
-        else if ((lastTileBrushed - tilePos).magnitude <= 1)
-            ;
-        else
-            DrawLine(lastTileBrushed, tilePos);
-        lastTileBrushed = tilePos;
-
-        // TODO: special case logic
-        var symmetryTile = GetSymmetryTile(tilePos);
-        if (symmetryTile != tilePos)
+        switch(_currentTool)
         {
-            BrushTile(symmetryTile);
+            case ToolPalette.POINT:
+                BrushTile(tilePos);
+                if (lastTileBrushed != null && (lastTileBrushed - tilePos).magnitude > 1)
+                    DrawLine(lastTileBrushed, tilePos);
+
+                // TODO: special case logic
+                var symmetryTile = GetSymmetryTile(tilePos);
+                if (symmetryTile != tilePos)
+                {
+                    BrushTile(symmetryTile);
+                }
+                break;
+            case ToolPalette.LINE:
+                // TODO: highlight the tiles where a line will be drawn
+                break;
+            default:
+                // TODO: error message?
+                break;
         }
+        lastTileBrushed = tilePos;
     }
 
     private void DrawLine(IntVector2 start, IntVector2 end)
     {
         if (end == start)
+        {
+            BrushTile(start);
             return;
+        }
         IntVector2 offset = end - start;
         int lineLength = offset.magnitude;
         IntVector2 primaryDirection = IntVector2.GetVectorFromCase(IntVector2.GetDirectionFromVector(offset));
@@ -413,16 +436,31 @@ public class MapManager : MonoBehaviour {
         int secondaryLength = secondaryOffset.magnitude;
         IntVector2 secondaryDirection = IntVector2.GetVectorFromCase(IntVector2.GetDirectionFromVector(secondaryOffset));
 
-        for(int ii = 1; ii < lineLength; ii++)
+        for(int ii = 0; ii <= lineLength; ii++)
         {
             int secondaryPortion = (int)((((float)ii * secondaryLength) / lineLength) +0.5f);
             BrushTile(start + ii * primaryDirection + secondaryPortion * secondaryDirection);
         }
     }
 
+    public void BeginBrush()
+    {
+        firstTileBrushed = null;
+        lastTileBrushed = null;
+    }
+
     public void EndBrush()
     {
-        lastTileBrushed = null;
+        switch (_currentTool)
+        {
+            case ToolPalette.POINT:
+                break;
+            case ToolPalette.LINE:
+                DrawLine(firstTileBrushed, lastTileBrushed);
+                break;
+            default:
+                break;
+        }
     }
 
     public void BrushTile(IntVector2 tilePos)
