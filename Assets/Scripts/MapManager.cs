@@ -114,6 +114,7 @@ public class MapManager : MonoBehaviour {
     public int defaultRows = 10;
     public IntVector2 lastTileBrushed = null;
     public IntVector2 firstTileBrushed = null;
+    public bool isBrushing = false;
     public bool hasChanged = false;
 
     public string mapName = "", previewMapName = "";
@@ -344,7 +345,7 @@ public class MapManager : MonoBehaviour {
         Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePosition);
         var tilePos = GetGridPositionAt(worldPos);
 
-        if(WorldInterfaceLayer.singleton.dragMode == WorldInterfaceLayer.DragMode.BRUSH)
+        if(WorldInterfaceLayer.singleton.dragMode == WorldInterfaceLayer.DragMode.BRUSH && (_currentTool != ToolPalette.LINE || !isBrushing))
         {
             var highlightList = new List<IntVector2>();
             highlightList.Add(tilePos);
@@ -414,6 +415,7 @@ public class MapManager : MonoBehaviour {
                 break;
             case ToolPalette.LINE:
                 // TODO: highlight the tiles where a line will be drawn
+                HighlightLine(firstTileBrushed, tilePos);
                 break;
             default:
                 // TODO: error message?
@@ -422,12 +424,18 @@ public class MapManager : MonoBehaviour {
         lastTileBrushed = tilePos;
     }
 
-    private void DrawLine(IntVector2 start, IntVector2 end)
+    private void HighlightLine(IntVector2 start, IntVector2 end)
     {
+        DrawBorderHighlights(GetLine(start, end));
+    }
+
+    private List<IntVector2> GetLine(IntVector2 start, IntVector2 end)
+    {
+        List<IntVector2> output = new List<IntVector2>();
         if (end == start)
         {
-            BrushTile(start);
-            return;
+            output.Add(start);
+            return output;
         }
         IntVector2 offset = end - start;
         int lineLength = offset.magnitude;
@@ -439,7 +447,21 @@ public class MapManager : MonoBehaviour {
         for(int ii = 0; ii <= lineLength; ii++)
         {
             int secondaryPortion = (int)((((float)ii * secondaryLength) / lineLength) +0.5f);
-            BrushTile(start + ii * primaryDirection + secondaryPortion * secondaryDirection);
+            output.Add(start + ii * primaryDirection + secondaryPortion * secondaryDirection);
+        }
+        return output;
+    }
+
+    private void DrawLine(IntVector2 start, IntVector2 end)
+    {
+        BrushList(GetLine(start, end));
+    }
+
+    private void BrushList(List<IntVector2> points)
+    {
+        foreach(var point in points)
+        {
+            BrushTile(point);
         }
     }
 
@@ -447,6 +469,7 @@ public class MapManager : MonoBehaviour {
     {
         firstTileBrushed = null;
         lastTileBrushed = null;
+        isBrushing = true;
     }
 
     public void EndBrush()
@@ -461,6 +484,7 @@ public class MapManager : MonoBehaviour {
             default:
                 break;
         }
+        isBrushing = false;
     }
 
     public void BrushTile(IntVector2 tilePos)
