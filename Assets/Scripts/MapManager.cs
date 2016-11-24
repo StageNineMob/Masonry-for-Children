@@ -446,7 +446,7 @@ public class MapManager : MonoBehaviour {
 
         for(int ii = 0; ii <= lineLength; ii++)
         {
-            int secondaryPortion = (int)((((float)ii * secondaryLength) / lineLength) +0.5f);
+            int secondaryPortion = Mathf.RoundToInt(((float)ii * secondaryLength) / lineLength);
             output.Add(start + ii * primaryDirection + secondaryPortion * secondaryDirection);
         }
         return output;
