@@ -5,6 +5,7 @@ using StageNine;
 using StageNine.Events;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 public class MapManager : MonoBehaviour {
 
@@ -424,9 +425,87 @@ public class MapManager : MonoBehaviour {
         lastTileBrushed = tilePos;
     }
 
+    public int RandomRound(float value)
+    {
+        // MAYBEDO: if we use randomness in line drawing, make sure the line that will be drawn is the same as the line that's highlighted
+        int retVal = Mathf.FloorToInt(value);
+        float remainder = value - retVal;
+        if (.5f > remainder)
+        {
+            return retVal;
+        }
+        if (.5f < remainder)
+        {
+            return retVal + 1;
+        }
+        if(Random.value >= .5f)
+            return retVal + 1;
+        return retVal;
+    }
+
+    // we messed up random rounding initially and we thought it was funny
+    public int CrazyRound(float value)
+    {
+        int retVal = Mathf.FloorToInt(value);
+        float remainder = value - retVal;
+        if (.5f < remainder)
+        {
+            return retVal;
+        }
+        if (.5f > remainder)
+        {
+            return retVal + 1;
+        }
+        if (Random.value >= .5f)
+            return retVal + 1;
+        return retVal;
+    }
+
     private void HighlightLine(IntVector2 start, IntVector2 end)
     {
         DrawBorderHighlights(GetLine(start, end));
+    }
+
+    private List<IntVector2> GetOldLine(IntVector2 start, IntVector2 end)
+    {
+        List<IntVector2> output = new List<IntVector2>();
+        if (end == start)
+        {
+            output.Add(start);
+            return output;
+        }
+        IntVector2 offset = end - start;
+        int lineLength = offset.magnitude;
+        IntVector2 primaryDirection = IntVector2.GetVectorFromCase(IntVector2.GetDirectionFromVector(offset));
+        // This code makes it so if the line is headed left/down, the start/end points are switched
+        //if(primaryDirection.x == 0)
+        //{
+        //    if (primaryDirection.y < 0)
+        //    {
+        //        offset = -offset;
+        //        primaryDirection = -primaryDirection;
+        //        start = end;
+        //    }
+        //}
+        //else
+        //{
+        //    if (primaryDirection.x < 0)
+        //    {
+        //        offset = -offset;
+        //        primaryDirection = -primaryDirection;
+        //        start = end;
+        //    }
+        //}
+        IntVector2 secondaryOffset = offset - (lineLength * primaryDirection);
+        int secondaryLength = secondaryOffset.magnitude;
+        IntVector2 secondaryDirection = IntVector2.GetVectorFromCase(IntVector2.GetDirectionFromVector(secondaryOffset));
+
+        for(int ii = 0; ii <= lineLength; ii++)
+        {
+            int secondaryPortion = RandomRound((((float)ii * secondaryLength) / lineLength));
+            output.Add(start + ii * primaryDirection + secondaryPortion * secondaryDirection);
+        }
+        return output;
     }
 
     private List<IntVector2> GetLine(IntVector2 start, IntVector2 end)
@@ -440,14 +519,57 @@ public class MapManager : MonoBehaviour {
         IntVector2 offset = end - start;
         int lineLength = offset.magnitude;
         IntVector2 primaryDirection = IntVector2.GetVectorFromCase(IntVector2.GetDirectionFromVector(offset));
+        if (primaryDirection.x == 0)
+        {
+            if (primaryDirection.y < 0)
+            {
+                offset = -offset;
+                primaryDirection = -primaryDirection;
+                start = end;
+            }
+        }
+        else
+        {
+            if (primaryDirection.x < 0)
+            {
+                offset = -offset;
+                primaryDirection = -primaryDirection;
+                start = end;
+            }
+        }
         IntVector2 secondaryOffset = offset - (lineLength * primaryDirection);
         int secondaryLength = secondaryOffset.magnitude;
         IntVector2 secondaryDirection = IntVector2.GetVectorFromCase(IntVector2.GetDirectionFromVector(secondaryOffset));
 
-        for(int ii = 0; ii <= lineLength; ii++)
+        int segmentLength = (lineLength + 1) / (secondaryLength + 1);
+        int longSegments = (lineLength + 1) % (secondaryLength + 1);
+        float segmentCount = (float)(secondaryLength + 1);
+        List<int> segmentLengths = new List<int>();
+        int longSegmentCount = 0;
+
+        for(int ii = 1; ii <= secondaryLength + 1; ii++)
         {
-            int secondaryPortion = Mathf.RoundToInt(((float)ii * secondaryLength) / lineLength);
-            output.Add(start + ii * primaryDirection + secondaryPortion * secondaryDirection);
+            if (Math.Round(longSegments * ii / segmentCount, MidpointRounding.AwayFromZero) > longSegmentCount)
+            // alternate version using random priority on x.5 rounding
+            // if (RandomRound(longSegments * ii / segmentCount) > longSegmentCount)
+            {
+                segmentLengths.Add(segmentLength + 1);
+                longSegmentCount++;
+            }
+            else
+                segmentLengths.Add(segmentLength);
+        }
+
+        IntVector2 currentPoint = start;
+        while(segmentLengths.Count > 0)
+        {
+            for(int ii = 0; ii < segmentLengths[0]; ii++)
+            {
+                output.Add(currentPoint);
+                currentPoint += primaryDirection;
+            }
+            currentPoint += secondaryDirection;
+            segmentLengths.RemoveAt(0);
         }
         return output;
     }
