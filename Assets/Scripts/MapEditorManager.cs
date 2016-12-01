@@ -42,6 +42,8 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     private Color[] swatchColors;
 
+    private MapManager.ToolPalette lastSelectedTool = MapManager.ToolPalette.POINT;
+
     public Color currentBrushColor;
 
     #region public methods
@@ -262,6 +264,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         terrainBrushesButton.GetComponent<Image>().color = currentBrushColor;
         MapManager.singleton.SelectSwatch1Brush();
         SetTerrainBrushesPanelActive(false);
+        ResetToLastTool();
     }
 
     public void PressedSwatch1Button()
@@ -273,19 +276,22 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     public void PressedEraserBrushButton()
     {
         MapManager.singleton.SelectEraserBrush();
+        MapManager.singleton.currentTool = MapManager.ToolPalette.POINT;
         CloseSubPanels();
     }
 
     public void PressedBrushToolButton()
     {
-        MapManager.singleton.currentTool = MapManager.ToolPalette.POINT;
+        lastSelectedTool = MapManager.ToolPalette.POINT;
+        MapManager.singleton.currentTool = lastSelectedTool;
         CloseSubPanels();
     }
 
 
     public void PressedLineToolButton()
     {
-        MapManager.singleton.currentTool = MapManager.ToolPalette.LINE;
+        lastSelectedTool = MapManager.ToolPalette.LINE;
+        MapManager.singleton.currentTool = lastSelectedTool;
         CloseSubPanels();
     }
 
@@ -411,6 +417,24 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         SetSymmetryModePanelActive(false);
     }
 
+    public void ResetToLastTool()
+    {
+        MapManager.singleton.currentTool = lastSelectedTool;
+
+        switch (lastSelectedTool)
+        {
+            case MapManager.ToolPalette.POINT:
+                MoveCheckMark(brushToolButton);
+                break;
+            case MapManager.ToolPalette.LINE:
+                MoveCheckMark(lineToolButton);
+                break;
+            default:
+                Debug.LogError("[MapEditorManager:ResetToLastTool] Invalid lastSelectedTool");
+                break;
+        }
+    }
+
     #endregion
 
     #region private methods
@@ -445,7 +469,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     //    //MapManager.singleton.hasChanged = false;
     //}
 
-    #if UNITY_STANDALONE
+#if UNITY_STANDALONE
 
     private void MapPropertiesPressedEnterKey()
     {
