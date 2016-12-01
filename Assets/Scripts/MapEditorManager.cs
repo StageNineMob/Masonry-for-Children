@@ -25,6 +25,8 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     private uint tempPointLimit;
     [SerializeField] private GameObject checkMark;
     [SerializeField] private GameObject panToolButton;
+    [SerializeField] private GameObject brushToolButton;
+    [SerializeField] private GameObject lineToolButton;
     [SerializeField] private GameObject UIPanel;
 
     private UnityAction confirmPropertiesCallback;
@@ -271,6 +273,19 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     public void PressedEraserBrushButton()
     {
         MapManager.singleton.SelectEraserBrush();
+        CloseSubPanels();
+    }
+
+    public void PressedBrushToolButton()
+    {
+        MapManager.singleton.currentTool = MapManager.ToolPalette.POINT;
+        CloseSubPanels();
+    }
+
+
+    public void PressedLineToolButton()
+    {
+        MapManager.singleton.currentTool = MapManager.ToolPalette.LINE;
         CloseSubPanels();
     }
 

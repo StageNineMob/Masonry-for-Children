@@ -205,6 +205,19 @@ public class MapManager : MonoBehaviour {
         }
     }
 
+    public ToolPalette currentTool
+    {
+        set
+        {
+            _currentTool = value;
+        }
+
+        get
+        {
+            return _currentTool;
+        }
+    }
+
 #if UNITY_IOS || UNITY_ANDROID
     private Vector3 prevDifference;
     private Vector3 prevMidPoint;
