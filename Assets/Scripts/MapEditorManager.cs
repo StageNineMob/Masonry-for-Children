@@ -43,6 +43,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     private Color[] swatchColors;
 
     private MapManager.ToolPalette lastSelectedTool = MapManager.ToolPalette.POINT;
+    private Color lastSelectedColor = Color.red;
 
     public Color currentBrushColor;
 
@@ -264,6 +265,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         terrainBrushesButton.GetComponent<Image>().color = currentBrushColor;
         MapManager.singleton.SelectSwatch1Brush();
         SetTerrainBrushesPanelActive(false);
+        lastSelectedColor = currentBrushColor;
         ResetToLastTool();
     }
 
@@ -278,12 +280,14 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         MapManager.singleton.SelectEraserBrush();
         MapManager.singleton.currentTool = MapManager.ToolPalette.POINT;
         CloseSubPanels();
+        ClearColorIndicator();
     }
 
     public void PressedBrushToolButton()
     {
         lastSelectedTool = MapManager.ToolPalette.POINT;
         MapManager.singleton.currentTool = lastSelectedTool;
+        ResetToLastColor();
         CloseSubPanels();
     }
 
@@ -292,6 +296,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     {
         lastSelectedTool = MapManager.ToolPalette.LINE;
         MapManager.singleton.currentTool = lastSelectedTool;
+        ResetToLastColor();
         CloseSubPanels();
     }
 
@@ -417,22 +422,9 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         SetSymmetryModePanelActive(false);
     }
 
-    public void ResetToLastTool()
+    public void ClearColorIndicator()
     {
-        MapManager.singleton.currentTool = lastSelectedTool;
-
-        switch (lastSelectedTool)
-        {
-            case MapManager.ToolPalette.POINT:
-                MoveCheckMark(brushToolButton);
-                break;
-            case MapManager.ToolPalette.LINE:
-                MoveCheckMark(lineToolButton);
-                break;
-            default:
-                Debug.LogError("[MapEditorManager:ResetToLastTool] Invalid lastSelectedTool");
-                break;
-        }
+        terrainBrushesButton.GetComponent<Image>().color = Color.white;
     }
 
     #endregion
@@ -489,7 +481,33 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         }
 
     }
-    #endif
+
+    private void ResetToLastTool()
+    {
+        MapManager.singleton.currentTool = lastSelectedTool;
+
+        switch (lastSelectedTool)
+        {
+            case MapManager.ToolPalette.POINT:
+                MoveCheckMark(brushToolButton);
+                break;
+            case MapManager.ToolPalette.LINE:
+                MoveCheckMark(lineToolButton);
+                break;
+            default:
+                Debug.LogError("[MapEditorManager:ResetToLastTool] Invalid lastSelectedTool");
+                break;
+        }
+    }
+
+    private void ResetToLastColor()
+    {
+        currentBrushColor = lastSelectedColor;
+        terrainBrushesButton.GetComponent<Image>().color = currentBrushColor;
+        MapManager.singleton.SelectSwatch1Brush();
+        SetTerrainBrushesPanelActive(false);
+    }
+#endif
 
     #endregion
 
