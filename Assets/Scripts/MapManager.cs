@@ -428,8 +428,12 @@ public class MapManager : MonoBehaviour {
                 }
                 break;
             case ToolPalette.LINE:
-                // TODO: highlight the tiles where a line will be drawn
                 HighlightLine(firstTileBrushed, tilePos);
+                if(GetSymmetryTile(firstTileBrushed) != firstTileBrushed || 
+                   GetSymmetryTile(tilePos) != tilePos)
+                {
+                    HighlightLine(GetSymmetryTile(firstTileBrushed), GetSymmetryTile(tilePos), true);
+                }
                 break;
             default:
                 // TODO: error message?
@@ -474,9 +478,9 @@ public class MapManager : MonoBehaviour {
         return retVal;
     }
 
-    private void HighlightLine(IntVector2 start, IntVector2 end)
+    private void HighlightLine(IntVector2 start, IntVector2 end, bool shouldAppend = false)
     {
-        DrawBorderHighlights(GetLine(start, end));
+        DrawBorderHighlights(GetLine(start, end), shouldAppend);
     }
 
     private List<IntVector2> GetOldLine(IntVector2 start, IntVector2 end)
@@ -590,6 +594,11 @@ public class MapManager : MonoBehaviour {
     private void DrawLine(IntVector2 start, IntVector2 end)
     {
         BrushList(GetLine(start, end));
+        if (GetSymmetryTile(start) != start || GetSymmetryTile(end) != end)
+        {
+            BrushList(GetLine(GetSymmetryTile(start), GetSymmetryTile(end)));
+        }
+
     }
 
     private void BrushList(List<IntVector2> points)
@@ -1353,9 +1362,12 @@ public class MapManager : MonoBehaviour {
         tileHolder.gameObject.SetActive(true);
     }
 
-    public void DrawBorderHighlights(List<IntVector2> positions)
+    public void DrawBorderHighlights(List<IntVector2> positions, bool shouldAppend = false)
     {
-        ClearBorderHighlights();
+        if(!shouldAppend)
+        {
+            ClearBorderHighlights();
+        }
         foreach(var pos in positions)
         {
             TileBorderHighlight(pos);
