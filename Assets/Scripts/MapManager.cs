@@ -429,6 +429,7 @@ public class MapManager : MonoBehaviour {
                 break;
             case ToolPalette.LINE:
                 HighlightLine(firstTileBrushed, tilePos);
+                //TODO: do symmetry better?
                 if(GetSymmetryTile(firstTileBrushed) != firstTileBrushed || 
                    GetSymmetryTile(tilePos) != tilePos)
                 {
