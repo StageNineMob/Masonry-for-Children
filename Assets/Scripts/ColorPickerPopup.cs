@@ -35,7 +35,8 @@ public class ColorPickerPopup : ModalPopup
             set
             {
                 _coords = value;
-                _color = ColorPickerPopup.singleton.GetColorFromWheel(_coords) * _value;
+                Color tempColor = ColorPickerPopup.singleton.GetColorFromWheel(_coords) * _value;
+                _color = new Color(tempColor.r, tempColor.g, tempColor.b);
             }
         }
 
@@ -93,7 +94,7 @@ public class ColorPickerPopup : ModalPopup
     {
         Vector2 mousePosition = Input.mousePosition;
         Vector2 texturePosition = ConvertToTexture(mousePosition);
-        swatches[selectedSwatch].coords = texturePosition;
+        swatches[selectedSwatch].coords = ForceColorInbounds(texturePosition);
         UpdateButtonColor(selectedSwatch);
         UpdateReticle();
     }
@@ -133,6 +134,82 @@ public class ColorPickerPopup : ModalPopup
         Debug.Log(texturePosition);
 
         return texturePosition;
+    }
+    
+    public Vector2 ForceColorInbounds(Vector2 original)
+    {
+        if(original.y >= 0.5f)
+        { // we are in the upper half
+            if (original.y <= -0.5f + (2f * original.x))
+            { // we are in upper right
+                if (original.y <= 2.5f - (2f * original.x))
+                {
+                    return original;
+                }
+                return PointToCenterIntersection(original, -2f, 2.5f);
+            }
+            else if (original.y >= 1.5f - (2f * original.x))
+            { // we are in upper center
+                if (original.y <= 1f)
+                {
+                    return original;
+                }
+                return PointToCenterIntersection(original, 0f, 1f);
+            }
+            else
+            { // we are in upper left
+                if (original.y <= 0.5f + (2f * original.x))
+                {
+                    return original;
+                }
+                return PointToCenterIntersection(original, 2f, 0.5f);
+            }
+        }
+        else
+        { // we are in the lower half
+            if (original.y >= -0.5f + (2f * original.x))
+            { // we are in lower left
+                if (original.y >= 0.5f - (2f * original.x))
+                {
+                    return original;
+                }
+                return PointToCenterIntersection(original, -2f, 0.5f);
+            }
+            else if (original.y <= 1.5f - (2f * original.x))
+            { // we are in lower center
+                if (original.y >= 0f)
+                {
+                    return original;
+                }
+                return PointToCenterIntersection(original, 0f, 0f);
+            }
+            else
+            { // we are in lower right
+                if (original.y >= -1.5f + (2f * original.x))
+                {
+                    return original;
+                }
+                return PointToCenterIntersection(original, 2f, -1.5f);
+            }
+        }
+    }
+
+    // point is the point we're correcting towards center (0.5,0.5), slope and intercept are the properties of the line we're correcting onto
+    public Vector2 PointToCenterIntersection(Vector2 point, float slope, float intercept)
+    {
+        if(point.x == 0.5f)
+        {
+            return new Vector2(0.5f, intercept);
+            // GENERAL CASE which we probably don't need:
+            // return new Vector2(0.5f, 0.5f * slope + intercept);
+        }
+        float slope2 = (point.y - 0.5f) / (point.x - 0.5f);
+        float intercept2 = 0.5f - (0.5f * slope2);
+
+        float intersectX = (intercept - intercept2) / (slope2 - slope);
+        float intersectY = slope * intersectX + intercept;
+
+        return new Vector2(intersectX, intersectY);
     }
 
     public void ValueSliderChanged()
