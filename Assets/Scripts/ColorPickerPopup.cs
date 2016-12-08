@@ -21,7 +21,8 @@ public class ColorPickerPopup : ModalPopup
             set
             {
                 _value = value;
-                _color = ColorPickerPopup.singleton.GetColorFromWheel(_coords) * _value;
+                Color tempColor = ColorPickerPopup.singleton.GetColorFromWheel(_coords) * _value;
+                _color = new Color(tempColor.r, tempColor.g, tempColor.b);
             }
         }
 
@@ -56,6 +57,9 @@ public class ColorPickerPopup : ModalPopup
     //public data
 
     public Image colorPicker;
+    public Image colorShader;
+    public Slider valueSlider;
+    public Image reticle;
 
     //private data
 
@@ -91,11 +95,27 @@ public class ColorPickerPopup : ModalPopup
         Vector2 texturePosition = ConvertToTexture(mousePosition);
         swatches[selectedSwatch].coords = texturePosition;
         UpdateButtonColor(selectedSwatch);
+        UpdateReticle();
     }
 
     private void UpdateButtonColor(int swatchNumber)
     {
         swatchButtons[swatchNumber].GetComponent<Image>().color = swatches[swatchNumber].color;
+    }
+
+    private void UpdateReticle()
+    {
+        Vector2 textureCoords = swatches[selectedSwatch].coords;
+        Vector3[] worldCorners = new Vector3[4];
+        colorPicker.rectTransform.GetWorldCorners(worldCorners);
+
+        Vector2 bottomLeft = worldCorners[0];
+        Vector2 topRight = worldCorners[2];
+
+        float worldX = bottomLeft.x + textureCoords.x * (topRight.x - bottomLeft.x);
+        float worldY = bottomLeft.y + textureCoords.y * (topRight.y - bottomLeft.y);
+
+        reticle.transform.position = new Vector2(worldX, worldY);
     }
 
     private Vector2 ConvertToTexture(Vector2 mousePosition)
@@ -117,7 +137,11 @@ public class ColorPickerPopup : ModalPopup
 
     public void ValueSliderChanged()
     {
-
+        float value = valueSlider.value;
+        float shade = 1.0f - value;
+        colorShader.color = new Color(0, 0, 0, shade);
+        swatches[selectedSwatch].value = value;
+        UpdateButtonColor(selectedSwatch);
     }
 
     public void SwatchSelected(int swatch)
