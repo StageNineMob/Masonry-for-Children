@@ -20,7 +20,8 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     [SerializeField] private Text symmetryModeButtonText;
     [SerializeField] private InputField mapNameInputField;
     [SerializeField] private InputField armyPointLimitInputField;
-    [SerializeField] private ModalPopup mapPropertiesPopup;
+    //[SerializeField] private ModalPopup mapPropertiesPopup;
+    [SerializeField] private ColorPickerPopup colorPickerPopup;
     [SerializeField] private Button mapPropertiesConfirmButton;
     private uint tempPointLimit;
     [SerializeField] private GameObject checkMark;
@@ -40,10 +41,10 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     [SerializeField] private GameObject swatchButton5;
     private GameObject[] swatchButtons;
 
-    private Color[] swatchColors;
+    public ColorPickerPopup.SwatchData[] swatchData;
 
     private MapManager.ToolPalette lastSelectedTool = MapManager.ToolPalette.POINT;
-    private Color lastSelectedColor = Color.red;
+    private int lastSelectedSwatch = 0;
 
     public Color currentBrushColor;
 
@@ -122,18 +123,35 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         EventManager.singleton.GrantFocus(pauseMenu.GetComponent<ModalPopup>());
     }
 
-    public void InitSwatchColors()
+    public void InitSwatchData()
     {
-        if(swatchColors.Length != swatchButtons.Length)
+        if(swatchData.Length != swatchButtons.Length)
         {
-            Debug.LogError("[MapEditorManager:InitSwatchColors] swatchColors.Length != swatchButtons.Length");
+            Debug.LogError("[MapEditorManager:InitSwatchData] swatchData.Length != swatchButtons.Length");
         }
-        swatchColors[0] = Color.red;
-        swatchColors[1] = Color.magenta;
-        swatchColors[2] = Color.blue;
-        swatchColors[3] = Color.cyan;
-        swatchColors[4] = Color.green;
-        swatchColors[5] = Color.yellow;
+        swatchData[0] = new ColorPickerPopup.SwatchData();
+        swatchData[0].coords = new Vector2(1f, 0.5f);
+        swatchData[0].value = 1f;
+
+        swatchData[1] = new ColorPickerPopup.SwatchData();
+        swatchData[1].coords = new Vector2(0.75f, 0f);
+        swatchData[1].value = 1f;
+
+        swatchData[2] = new ColorPickerPopup.SwatchData();
+        swatchData[2].coords = new Vector2(0.25f, 0f);
+        swatchData[2].value = 1f;
+
+        swatchData[3] = new ColorPickerPopup.SwatchData();
+        swatchData[3].coords = new Vector2(0f, 0.5f);
+        swatchData[3].value = 1f;
+
+        swatchData[4] = new ColorPickerPopup.SwatchData();
+        swatchData[4].coords = new Vector2(0.25f, 1f);
+        swatchData[4].value = 1f;
+
+        swatchData[5] = new ColorPickerPopup.SwatchData();
+        swatchData[5].coords = new Vector2(0.75f, 1f);
+        swatchData[5].value = 1f;
 
         swatchButtons[0] = swatchButton0;
         swatchButtons[1] = swatchButton1;
@@ -145,7 +163,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         int buttonCount = swatchButtons.Length;
         for (int ii = 0; ii < buttonCount; ++ii)
         {
-            swatchButtons[ii].GetComponent<Image>().color = swatchColors[ii];
+            swatchButtons[ii].GetComponent<Image>().color = swatchData[ii].color;
         }
     }
 
@@ -196,15 +214,6 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         openFileDialog.GetComponent<UIOpenFileDialog>().PopulateFileInfo(MapManager.PICTURE_DIRECTORY, MapManager.PICTURE_FILE_EXTENSION);
     }
 
-    //public void CheckForForceMapProperties(UnityAction callback)
-    //{
-    //    if (MapManager.singleton.mapName == "" || MapManager.singleton.armyPointLimit == 0)
-    //    {
-    //        ShowMapPropertiesPopup(callback);
-    //    }
-    //    else
-    //        callback();
-    //}
 
     public void SaveMapAs(string fileName)
     {
@@ -237,6 +246,13 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         SetSymmetryMode(MapManager.SymmetrySetting.NONE);
     }
 
+    public void ShowColorPicker()
+    {
+        EventManager.singleton.GrantFocus(colorPickerPopup);
+        colorPickerPopup.InitializeAllSwatches();
+        colorPickerPopup.SelectSwatch(lastSelectedSwatch);
+    }
+
     public void SetTerrainBrushesPanelActive(bool visibility)
     {
         terrainBrushesPanel.SetActive(visibility);
@@ -261,11 +277,11 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     public void PressedSwatchButton(int button )
     {
-        currentBrushColor = swatchColors[(int)button];
+        currentBrushColor = swatchData[(int)button].color;
         terrainBrushesButton.GetComponent<Image>().color = currentBrushColor;
         MapManager.singleton.SelectSwatch1Brush();
         SetTerrainBrushesPanelActive(false);
-        lastSelectedColor = currentBrushColor;
+        lastSelectedSwatch = button;
         ResetToLastTool();
     }
 
@@ -502,7 +518,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     private void ResetToLastColor()
     {
-        currentBrushColor = lastSelectedColor;
+        currentBrushColor = swatchData[lastSelectedSwatch].color;
         terrainBrushesButton.GetComponent<Image>().color = currentBrushColor;
         MapManager.singleton.SelectSwatch1Brush();
         SetTerrainBrushesPanelActive(false);
@@ -528,9 +544,9 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         }
     }
     void Start () {
-        swatchColors = new Color[6];
+        swatchData = new ColorPickerPopup.SwatchData[6];
         swatchButtons = new GameObject[6];
-        InitSwatchColors();
+        InitSwatchData();
         Debug.Log("[MapEditorManager:Start]");
         MapManager.singleton.mapContext = MapManager.MapContext.MAP_EDITOR;
         //MapManager.singleton.LoadMap("test.bit");

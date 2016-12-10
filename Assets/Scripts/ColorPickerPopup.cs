@@ -221,14 +221,25 @@ public class ColorPickerPopup : ModalPopup
         UpdateButtonColor(selectedSwatch);
     }
 
-    public void SwatchSelected(int swatch)
+    public void SelectSwatch(int swatch)
     {
-
+        selectedSwatch = swatch;
+        UpdateReticle();
+        valueSlider.value = swatches[selectedSwatch].value;
     }
 
     public void InitializeValues(int swatch)
     {
 
+    }
+
+    public void InitializeAllSwatches()
+    {
+        for(int ii = 0; ii < 6; ii++)
+        {
+            swatches[ii] = MapEditorManager.singleton.swatchData[ii];
+            UpdateButtonColor(ii);
+        }
     }
 
     public Color GetColorFromWheel(Vector2 coords)
@@ -257,14 +268,15 @@ public class ColorPickerPopup : ModalPopup
             {
                 swatches[ii] = new SwatchData();
             }
-                swatchButtons = new Button[6];
-                swatchButtons[0] = swatchButton0;
-                swatchButtons[1] = swatchButton1;
-                swatchButtons[2] = swatchButton2;
-                swatchButtons[3] = swatchButton3;
-                swatchButtons[4] = swatchButton4;
-                swatchButtons[5] = swatchButton5;
-                selectedSwatch = 0;
+            swatchButtons = new Button[6];
+            swatchButtons[0] = swatchButton0;
+            swatchButtons[1] = swatchButton1;
+            swatchButtons[2] = swatchButton2;
+            swatchButtons[3] = swatchButton3;
+            swatchButtons[4] = swatchButton4;
+            swatchButtons[5] = swatchButton5;
+            selectedSwatch = 0;
+            gameObject.SetActive(false);
         }
         else
         {
