@@ -8,6 +8,7 @@ public class ColorPickerPopup : ModalPopup
 
     public class SwatchData
     {
+        
         private float _value = 1;
         private Vector2 _coords;
         private Color _color;
@@ -47,6 +48,20 @@ public class ColorPickerPopup : ModalPopup
                 return _color;
             }
         }
+
+        public SwatchData()
+        {
+            _coords = new Vector2(.5f, .5f);
+            _value = 1f;
+            _color = Color.white;
+        }
+
+        public SwatchData(SwatchData copy)
+        {
+            _coords = copy._coords;
+            _value = copy._value;
+            _color = copy._color;
+        }
     }
     //enums
 
@@ -82,12 +97,19 @@ public class ColorPickerPopup : ModalPopup
     public void PressedCancelButton()
     {
         EventManager.singleton.ReturnFocus();
-        // TODO: TEST THIS
     }
 
     public void PressedConfirmButton()
     {
-
+        for(int ii = 0; ii < 6; ii++)
+        {
+            MapEditorManager.singleton.swatchData[ii] = swatches[ii];
+        }
+        MapEditorManager.singleton.SetSwatchButtonColors();
+        EventManager.singleton.ReturnFocus();
+        MapEditorManager.singleton.PressedSwatchButton(selectedSwatch);
+        MapEditorManager.singleton.ResetToLastTool();
+        WorldInterfaceLayer.singleton.SetBrushMode();
     }
 
     public void PressedColorPicker()
@@ -237,7 +259,7 @@ public class ColorPickerPopup : ModalPopup
     {
         for(int ii = 0; ii < 6; ii++)
         {
-            swatches[ii] = MapEditorManager.singleton.swatchData[ii];
+            swatches[ii] = new SwatchData(MapEditorManager.singleton.swatchData[ii]);
             UpdateButtonColor(ii);
         }
     }

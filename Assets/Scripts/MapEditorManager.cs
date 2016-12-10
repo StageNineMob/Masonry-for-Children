@@ -160,6 +160,11 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         swatchButtons[4] = swatchButton4;
         swatchButtons[5] = swatchButton5;
 
+        SetSwatchButtonColors();
+    }
+
+    public void SetSwatchButtonColors()
+    {
         int buttonCount = swatchButtons.Length;
         for (int ii = 0; ii < buttonCount; ++ii)
         {
@@ -498,7 +503,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     }
 
-    private void ResetToLastTool()
+    public void ResetToLastTool()
     {
         MapManager.singleton.currentTool = lastSelectedTool;
 
