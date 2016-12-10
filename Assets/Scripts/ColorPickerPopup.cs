@@ -76,6 +76,7 @@ public class ColorPickerPopup : ModalPopup
     public Image colorShader;
     public Slider valueSlider;
     public Image reticle;
+    public Image selectedSwatchBorder;
 
     //private data
 
@@ -124,6 +125,16 @@ public class ColorPickerPopup : ModalPopup
     private void UpdateButtonColor(int swatchNumber)
     {
         swatchButtons[swatchNumber].GetComponent<Image>().color = swatches[swatchNumber].color;
+        if (swatchNumber == selectedSwatch)
+            UpdateSwatchBorderColor();
+    }
+
+    private void UpdateSwatchBorderColor()
+    {
+        float intensity = 0f;
+        if (swatches[selectedSwatch].value < .5f)
+            intensity = 1f;
+        selectedSwatchBorder.color = new Color (intensity, intensity, intensity);
     }
 
     private void UpdateReticle()
@@ -248,6 +259,8 @@ public class ColorPickerPopup : ModalPopup
         selectedSwatch = swatch;
         UpdateReticle();
         valueSlider.value = swatches[selectedSwatch].value;
+        selectedSwatchBorder.transform.position = swatchButtons[selectedSwatch].transform.position;
+        UpdateSwatchBorderColor();
     }
 
     public void InitializeValues(int swatch)
