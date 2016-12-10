@@ -256,16 +256,17 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         EventManager.singleton.GrantFocus(colorPickerPopup);
         colorPickerPopup.InitializeAllSwatches();
         colorPickerPopup.SelectSwatch(lastSelectedSwatch);
+        SetColorSwatchPanelActive(false);
     }
 
-    public void SetTerrainBrushesPanelActive(bool visibility)
+    public void SetColorSwatchPanelActive(bool visibility)
     {
         terrainBrushesPanel.SetActive(visibility);
     }
 
     public void PressedTerrainBrushesButton()
     {
-        SetTerrainBrushesPanelActive(true);
+        SetColorSwatchPanelActive(true);
         SetSymmetryModePanelActive(false);
     }
 
@@ -277,7 +278,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     public void PressedSymmetryModeButton()
     {
         SetSymmetryModePanelActive(!symmetryModePanel.activeSelf);
-        SetTerrainBrushesPanelActive(false);
+        SetColorSwatchPanelActive(false);
     }
 
     public void PressedSwatchButton(int button )
@@ -285,7 +286,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         currentBrushColor = swatchData[(int)button].color;
         terrainBrushesButton.GetComponent<Image>().color = currentBrushColor;
         MapManager.singleton.SelectSwatch1Brush();
-        SetTerrainBrushesPanelActive(false);
+        SetColorSwatchPanelActive(false);
         lastSelectedSwatch = button;
         ResetToLastTool();
     }
@@ -293,7 +294,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     public void PressedSwatch1Button()
     {
         MapManager.singleton.SelectSwatch1Brush();
-        SetTerrainBrushesPanelActive(false);
+        SetColorSwatchPanelActive(false);
     }
 
     public void PressedEraserBrushButton()
@@ -439,7 +440,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     public void CloseSubPanels()
     {
-        SetTerrainBrushesPanelActive(false);
+        SetColorSwatchPanelActive(false);
         SetSymmetryModePanelActive(false);
     }
 
@@ -526,7 +527,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         currentBrushColor = swatchData[lastSelectedSwatch].color;
         terrainBrushesButton.GetComponent<Image>().color = currentBrushColor;
         MapManager.singleton.SelectSwatch1Brush();
-        SetTerrainBrushesPanelActive(false);
+        SetColorSwatchPanelActive(false);
     }
 #endif
 
