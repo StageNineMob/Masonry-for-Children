@@ -184,6 +184,8 @@ public class MapManager : MonoBehaviour {
 
     private List<GameObject> borderHighlights;
 
+    private Stack<HistoryStackRecord> undoRecords;
+
     // public properties
     public SymmetrySetting symmetrySetting
     {
@@ -645,7 +647,8 @@ public class MapManager : MonoBehaviour {
                     break;
                 case BrushType.TILE:
                     Debug.Log("[MapManager:GetBrush] brushing over tile.");
-                    OverwriteTile(mapTiles[tilePos], _prefabs[_brushType]);
+                    var hsr = new HSRDrawTile(MapEditorManager.singleton.currentBrushColor, tilePos, _prefabs[_brushType]);
+                    hsr.Do();
                     hasChanged = true;
                     break;
                 case BrushType.NONE:
@@ -665,9 +668,9 @@ public class MapManager : MonoBehaviour {
                     break;
                 case BrushType.TILE:
                     Debug.Log("[MapManager:GetBrush] brushing new tile.");
-                    InstantiateTile(_prefabs[_brushType], tilePos);
-                    mapTiles[tilePos].GetComponent<TileListener>().mainColor = MapEditorManager.singleton.currentBrushColor;
-                    hasChanged = true;
+                    var hsr = new HSRDrawTile(MapEditorManager.singleton.currentBrushColor, tilePos, _prefabs[_brushType]);
+                    hsr.Do();
+                    hasChanged = true; //for save tracking
                     break;
                 case BrushType.NONE:
                     Debug.LogError("[MapManager:GetBrush] No Key, No brush type!");
@@ -1002,40 +1005,6 @@ public class MapManager : MonoBehaviour {
                 }
                 break;
         }
-    }
-
-    public void CreateDefaultMap()
-    {
-        GameObject toInstantiate;
-
-        tileHolder = new GameObject("Tiles").transform;
-
-        for (int ixx = 0; ixx < defaultColumns; ixx++)
-        {
-            for (int iyy = 0; iyy < defaultRows; iyy++)
-            {
-                if ((ixx * iyy) % (ixx + iyy + 1) == 2) // change this later if we need terrain to make more sense
-                {
-                    toInstantiate = blockedTilePrefab;
-                }
-                else
-                {
-                    toInstantiate = openTilePrefab;
-                }
-
-                InstantiateTile(toInstantiate, new IntVector2(ixx, iyy));
-            }
-        }
-
-        CreateTileNodeGraph();
-
-        InitCameraMapCenter();
-        AdjustPanSpeed();
-
-        // test saving a map file
-        SaveCurrentMapAs(defaultPictureFileName);
-        SerializableMap load = FileManager.singleton.Load<SerializableMap>(defaultPictureFileName);
-        Debug.Log("[MapManager:CreateDefaultMap] " + load.ToString());
     }
 
     //@deprecated
@@ -1373,6 +1342,19 @@ public class MapManager : MonoBehaviour {
         {
             TileBorderHighlight(pos);
         }
+    }
+
+    public void Undo()
+    {
+        if(undoRecords.Count != 0)
+        {
+            undoRecords.Pop().Undo();
+        }
+    }
+
+    public void AddToUndo(HistoryStackRecord record)
+    {
+        undoRecords.Push(record);
     }
 
     #endregion
@@ -1804,6 +1786,7 @@ public class MapManager : MonoBehaviour {
         borderHighlights = new List<GameObject>();
         _prefabs[BrushType.TILE] = tilePrefab;
         lastMouseOver = null;
+        undoRecords = new Stack<HistoryStackRecord>();
     }
 
     private void ClearBorderHighlights()

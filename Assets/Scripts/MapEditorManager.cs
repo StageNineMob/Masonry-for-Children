@@ -449,6 +449,11 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         terrainBrushesButton.GetComponent<Image>().color = Color.white;
     }
 
+    public void UndoCommand()
+    {
+        MapManager.singleton.Undo();
+    }
+
     #endregion
 
     #region private methods
