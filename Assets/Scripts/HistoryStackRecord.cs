@@ -7,9 +7,14 @@ namespace StageNine
     public interface HistoryKeeper
     {
         bool BatchContinueUndo();
+        bool BatchContinueRedo();
         void AddToUndo(HistoryStackRecord record);
+        void AddToRedo(HistoryStackRecord record);
+        void ClearRedo();
         void Undo();
+        void Redo();
     }
+
     public abstract class HistoryStackRecord
     {
         //enums
@@ -22,30 +27,32 @@ namespace StageNine
 
         //private data
         protected HistoryKeeper historyKeeper;
+
         //public properties
         public HistoryStackRecord(HistoryKeeper parent)
         {
             historyKeeper = parent;
         }
+
         //methods
         #region public methods
         public virtual void Do()
         {
-            //TODO: clear redo stack
+            historyKeeper.ClearRedo();
             Execute();
             historyKeeper.AddToUndo(this);
         }
 
         public virtual void Undo()
         {
+            historyKeeper.AddToRedo(this);
             Revert();
-            // add self to redo stack
         }
 
         public virtual void Redo()
         {
-            Execute();
             historyKeeper.AddToUndo(this);
+            Execute();
         }
 
         public abstract void Execute();
@@ -125,6 +132,11 @@ namespace StageNine
 
         public override void Execute()
         {
+            while (historyKeeper.BatchContinueRedo())
+            {
+                historyKeeper.Redo();
+            }
+            historyKeeper.Redo();
         }
 
         public override void Revert()
@@ -145,14 +157,11 @@ namespace StageNine
 
         public override void Revert()
         {
-            // while undo stack peek() isn't a batch begin
             while(historyKeeper.BatchContinueUndo())
             {
-                // call undo() on next item of undo stack
-                MapManager.singleton.Undo();
+                historyKeeper.Undo();
             }
-            // call undo() on next item of undo stack
-            MapManager.singleton.Undo();
+            historyKeeper.Undo();
         }
     }
 }

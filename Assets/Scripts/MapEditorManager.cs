@@ -454,6 +454,11 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         MapManager.singleton.Undo();
     }
 
+    public void RedoCommand()
+    {
+        MapManager.singleton.Redo();
+    }
+
     #endregion
 
     #region private methods

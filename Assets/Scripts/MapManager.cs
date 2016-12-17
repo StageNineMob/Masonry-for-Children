@@ -185,7 +185,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
 
     private List<GameObject> borderHighlights;
 
-    private Stack<HistoryStackRecord> undoRecords;
+    private Stack<HistoryStackRecord> undoRecords, redoRecords;
 
     // public properties
     public SymmetrySetting symmetrySetting
@@ -1355,14 +1355,37 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         }
     }
 
+    public void Redo()
+    {
+        if (redoRecords.Count != 0)
+        {
+            redoRecords.Pop().Redo();
+        }
+    }
+
     public void AddToUndo(HistoryStackRecord record)
     {
         undoRecords.Push(record);
     }
 
+    public void AddToRedo(HistoryStackRecord record)
+    {
+        redoRecords.Push(record);
+    }
+
+    public void ClearRedo()
+    {
+        redoRecords.Clear();
+    }
+
     public bool BatchContinueUndo()
     {
         return !(undoRecords.Peek() is HSRBatchBegin);
+    }
+
+    public bool BatchContinueRedo()
+    {
+        return !(redoRecords.Peek() is HSRBatchEnd);
     }
 
     #endregion
@@ -1795,6 +1818,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         _prefabs[BrushType.TILE] = tilePrefab;
         lastMouseOver = null;
         undoRecords = new Stack<HistoryStackRecord>();
+        redoRecords = new Stack<HistoryStackRecord>();
     }
 
     private void ClearBorderHighlights()
@@ -1859,6 +1883,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
             }
         }
     }
+
 
     #endregion
 }
