@@ -1121,6 +1121,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         if (!preview)
         {
             ClearTileHolder();
+            ResetHistoryKeeper();
         }
         else
         {
@@ -1190,6 +1191,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
     public void CreateNewMap()
     {
         ClearTileHolder();
+        ResetHistoryKeeper();
 
         //recenter the camera
         currentCamera.transform.position = defaultCameraPosition;
@@ -1388,6 +1390,17 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
     public void ClearRedo()
     {
         redoRecords.Clear();
+    }
+
+    public void ClearUndo()
+    {
+        undoRecords.Clear();
+    }
+
+    public void ResetHistoryKeeper()
+    {
+        ClearRedo();
+        ClearUndo();
     }
 
     public bool BatchContinueUndo()
