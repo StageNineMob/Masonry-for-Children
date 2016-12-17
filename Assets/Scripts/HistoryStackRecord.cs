@@ -6,7 +6,6 @@ namespace StageNine
 {
     public abstract class HistoryStackRecord
     {
-
         //enums
 
         //subclasses
@@ -107,4 +106,41 @@ namespace StageNine
         }
     }
 
+    public class HSRBatchBegin : HistoryStackRecord
+    {
+        public HSRBatchBegin()
+        {
+        }
+
+        public override void Execute()
+        {
+        }
+
+        public override void Revert()
+        {
+        }
+    }
+
+    public class HSRBatchEnd : HistoryStackRecord
+    {
+        public HSRBatchEnd()
+        {
+        }
+
+        public override void Execute()
+        {
+        }
+
+        public override void Revert()
+        {
+            // while undo stack peek() isn't a batch begin
+            while(MapManager.singleton.canContinueUndo)
+            {
+                // call undo() on next item of undo stack
+                MapManager.singleton.Undo();
+            }
+            // call undo() on next item of undo stack
+            MapManager.singleton.Undo();
+        }
+    }
 }

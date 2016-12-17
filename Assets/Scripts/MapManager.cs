@@ -114,6 +114,7 @@ public class MapManager : MonoBehaviour {
     public int defaultColumns = 10;
     public int defaultRows = 10;
     public IntVector2 lastTileBrushed = null;
+
     public IntVector2 firstTileBrushed = null;
     public bool isBrushing = false;
     public bool hasChanged = false;
@@ -217,6 +218,14 @@ public class MapManager : MonoBehaviour {
         get
         {
             return _currentTool;
+        }
+    }
+
+    public bool canContinueUndo
+    {
+        get
+        {
+            return !(undoRecords.Peek() is HSRBatchBegin);
         }
     }
 
@@ -617,6 +626,7 @@ public class MapManager : MonoBehaviour {
         firstTileBrushed = null;
         lastTileBrushed = null;
         isBrushing = true;
+        undoRecords.Push(new HSRBatchBegin());
     }
 
     public void EndBrush()
@@ -632,6 +642,7 @@ public class MapManager : MonoBehaviour {
                 break;
         }
         isBrushing = false;
+        undoRecords.Push(new HSRBatchEnd());
     }
 
     public void BrushTile(IntVector2 tilePos)
