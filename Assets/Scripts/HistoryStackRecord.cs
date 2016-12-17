@@ -4,6 +4,12 @@ using System;
 
 namespace StageNine
 {
+    public interface HistoryKeeper
+    {
+        bool BatchContinueUndo();
+        void AddToUndo(HistoryStackRecord record);
+        void Undo();
+    }
     public abstract class HistoryStackRecord
     {
         //enums
@@ -15,16 +21,19 @@ namespace StageNine
         //public data
 
         //private data
-
+        protected HistoryKeeper historyKeeper;
         //public properties
-
+        public HistoryStackRecord(HistoryKeeper parent)
+        {
+            historyKeeper = parent;
+        }
         //methods
         #region public methods
         public virtual void Do()
         {
             //TODO: clear redo stack
             Execute();
-            MapManager.singleton.AddToUndo(this);
+            historyKeeper.AddToUndo(this);
         }
 
         public virtual void Undo()
@@ -36,7 +45,7 @@ namespace StageNine
         public virtual void Redo()
         {
             Execute();
-            MapManager.singleton.AddToUndo(this);
+            historyKeeper.AddToUndo(this);
         }
 
         public abstract void Execute();
@@ -60,7 +69,8 @@ namespace StageNine
         public IntVector2 location;
         public GameObject newPrefab, oldPrefab;
 
-        public HSRDrawTile(Color color, IntVector2 tileLocation, GameObject prefab)
+        public HSRDrawTile(HistoryKeeper parent, Color color, IntVector2 tileLocation, GameObject prefab)
+            :base(parent)
         {
             newColor = color;
             location = tileLocation;
@@ -108,7 +118,8 @@ namespace StageNine
 
     public class HSRBatchBegin : HistoryStackRecord
     {
-        public HSRBatchBegin()
+        public HSRBatchBegin(HistoryKeeper parent)
+            :base(parent)
         {
         }
 
@@ -123,7 +134,8 @@ namespace StageNine
 
     public class HSRBatchEnd : HistoryStackRecord
     {
-        public HSRBatchEnd()
+        public HSRBatchEnd(HistoryKeeper parent)
+            : base(parent)
         {
         }
 
@@ -134,7 +146,7 @@ namespace StageNine
         public override void Revert()
         {
             // while undo stack peek() isn't a batch begin
-            while(MapManager.singleton.canContinueUndo)
+            while(historyKeeper.BatchContinueUndo())
             {
                 // call undo() on next item of undo stack
                 MapManager.singleton.Undo();

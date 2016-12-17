@@ -7,7 +7,7 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
-public class MapManager : MonoBehaviour {
+public class MapManager : MonoBehaviour, HistoryKeeper {
 
     //enums
     public enum SymmetrySetting
@@ -218,14 +218,6 @@ public class MapManager : MonoBehaviour {
         get
         {
             return _currentTool;
-        }
-    }
-
-    public bool canContinueUndo
-    {
-        get
-        {
-            return !(undoRecords.Peek() is HSRBatchBegin);
         }
     }
 
@@ -626,7 +618,7 @@ public class MapManager : MonoBehaviour {
         firstTileBrushed = null;
         lastTileBrushed = null;
         isBrushing = true;
-        undoRecords.Push(new HSRBatchBegin());
+        undoRecords.Push(new HSRBatchBegin(this));
     }
 
     public void EndBrush()
@@ -642,7 +634,7 @@ public class MapManager : MonoBehaviour {
                 break;
         }
         isBrushing = false;
-        undoRecords.Push(new HSRBatchEnd());
+        undoRecords.Push(new HSRBatchEnd(this));
     }
 
     public void BrushTile(IntVector2 tilePos)
@@ -658,7 +650,7 @@ public class MapManager : MonoBehaviour {
                     break;
                 case BrushType.TILE:
                     Debug.Log("[MapManager:GetBrush] brushing over tile.");
-                    var hsr = new HSRDrawTile(MapEditorManager.singleton.currentBrushColor, tilePos, _prefabs[_brushType]);
+                    var hsr = new HSRDrawTile(this, MapEditorManager.singleton.currentBrushColor, tilePos, _prefabs[_brushType]);
                     hsr.Do();
                     hasChanged = true;
                     break;
@@ -679,7 +671,7 @@ public class MapManager : MonoBehaviour {
                     break;
                 case BrushType.TILE:
                     Debug.Log("[MapManager:GetBrush] brushing new tile.");
-                    var hsr = new HSRDrawTile(MapEditorManager.singleton.currentBrushColor, tilePos, _prefabs[_brushType]);
+                    var hsr = new HSRDrawTile(this, MapEditorManager.singleton.currentBrushColor, tilePos, _prefabs[_brushType]);
                     hsr.Do();
                     hasChanged = true; //for save tracking
                     break;
@@ -1366,6 +1358,11 @@ public class MapManager : MonoBehaviour {
     public void AddToUndo(HistoryStackRecord record)
     {
         undoRecords.Push(record);
+    }
+
+    public bool BatchContinueUndo()
+    {
+        return !(undoRecords.Peek() is HSRBatchBegin);
     }
 
     #endregion
