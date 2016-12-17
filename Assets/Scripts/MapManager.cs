@@ -644,19 +644,26 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
             switch(_brushType)
             {
                 case BrushType.ERASER:
-                    Debug.Log("[MapManager:GetBrush] Erasing tile.");
-                    DeleteTile(mapTiles[tilePos]);
-                    hasChanged = true;
-                    break;
+                    {
+                        Debug.Log("[MapManager:GetBrush] Erasing tile.");
+                        var hsr = new HSREraseTile(this, tilePos);
+                        hsr.Do();
+                        hasChanged = true;
+                        break;
+                    }
                 case BrushType.TILE:
-                    Debug.Log("[MapManager:GetBrush] brushing over tile.");
-                    var hsr = new HSRDrawTile(this, MapEditorManager.singleton.currentBrushColor, tilePos, _prefabs[_brushType]);
-                    hsr.Do();
-                    hasChanged = true;
-                    break;
+                    {
+                        Debug.Log("[MapManager:GetBrush] brushing over tile.");
+                        var hsr = new HSRDrawTile(this, MapEditorManager.singleton.currentBrushColor, tilePos, _prefabs[_brushType]);
+                        hsr.Do();
+                        hasChanged = true;
+                        break;
+                    }
                 case BrushType.NONE:
-                    Debug.LogError("[MapManager:GetBrush] Has Key, No brush type!");
-                    break;
+                    {
+                        Debug.LogError("[MapManager:GetBrush] Has Key, No brush type!");
+                        break;
+                    }
             }
             //TODO: change tile's type, delete if eraser
         }
@@ -1347,9 +1354,14 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         }
     }
 
+    public GameObject GetTilePrefabForType(BrushType type)
+    {
+        return _prefabs[type];
+    }
+
     public void Undo()
     {
-        if(undoRecords.Count != 0)
+        if (undoRecords.Count != 0)
         {
             undoRecords.Pop().Undo();
         }

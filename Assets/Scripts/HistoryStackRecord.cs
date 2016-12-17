@@ -123,6 +123,48 @@ namespace StageNine
         }
     }
 
+
+    public class HSREraseTile : HistoryStackRecord
+    {
+        public Color oldColor;
+        public IntVector2 location;
+        public GameObject oldPrefab;
+
+        public HSREraseTile(HistoryKeeper parent, IntVector2 tileLocation)
+            : base(parent)
+        {
+            location = tileLocation;
+
+            var tileCheck = MapManager.singleton.GetTileAt(tileLocation);
+            if (tileCheck != null)
+            {
+                //MapManager.BrushType oldType = tileCheck.GetComponent<TileListener>().
+                oldPrefab = MapManager.singleton.GetTilePrefabForType(MapManager.BrushType.TILE); //TODO: make this consider terrain types/ animated types etc.
+                oldColor = tileCheck.GetComponent<TileListener>().mainColor;
+            }
+            else
+            {
+                oldPrefab = null;
+            }
+        }
+
+        public override void Execute()
+        {
+            if (oldPrefab != null)
+            {
+                MapManager.singleton.DeleteTile(MapManager.singleton.GetTileAt(location));
+            }
+        }
+
+        public override void Revert()
+        {
+            if (oldPrefab != null)
+            {
+                MapManager.singleton.InstantiateTile(oldPrefab, location).GetComponent<TileListener>().mainColor = oldColor;
+            }
+        }
+    }
+
     public class HSRBatchBegin : HistoryStackRecord
     {
         public HSRBatchBegin(HistoryKeeper parent)
