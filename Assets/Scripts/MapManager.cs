@@ -29,6 +29,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         NONE,
         ERASER,
         TILE,
+        DROPPER,
     }
 
     public enum ToolPalette
@@ -641,9 +642,15 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
                 case BrushType.TILE:
                     {
                         Debug.Log("[MapManager:GetBrush] brushing over tile.");
-                        var hsr = new HSRDrawTile(this, MapEditorManager.singleton.currentBrushColor, tilePos, _prefabs[_brushType]);
+                        var hsr = new HSRDrawTile(this, MapEditorManager.singleton.currentBrushSwatch, tilePos, _prefabs[_brushType]);
                         hsr.Do();
                         hasChanged = true;
+                        break;
+                    }
+                case BrushType.DROPPER:
+                    {
+                        var tile = GetTileAt(tilePos);
+                        //tile.GetComponent<TileListener>().mainColor;
                         break;
                     }
                 case BrushType.NONE:
@@ -665,7 +672,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
                     break;
                 case BrushType.TILE:
                     Debug.Log("[MapManager:GetBrush] brushing new tile.");
-                    var hsr = new HSRDrawTile(this, MapEditorManager.singleton.currentBrushColor, tilePos, _prefabs[_brushType]);
+                    var hsr = new HSRDrawTile(this, MapEditorManager.singleton.currentBrushSwatch, tilePos, _prefabs[_brushType]);
                     hsr.Do();
                     hasChanged = true; //for save tracking
                     break;
@@ -1060,7 +1067,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
             map.tiles[ii] = new SerializableTile();
             map.tiles[ii].x = pair.Key.x;
             map.tiles[ii].y = pair.Key.y;
-            map.tiles[ii].mainColor = new SerializableColor(pair.Value.GetComponent<TileListener>().mainColor);
+            map.tiles[ii].swatchData = new ColorPickerPopup.SerializableSwatch(pair.Value.GetComponent<TileListener>().swatchData);
             //map.tiles[ii].deployable = pair.Value.GetComponent<TileListener>().deployable;
             //map.tiles[ii].type = pair.Value.GetComponent<TileListener>().terrain.type;
             //map.tiles[ii].isRoad = pair.Value.GetComponent<TileListener>().HasTerrainProperty(TerrainDefinition.TerrainProperty.ROAD);
@@ -1160,7 +1167,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
             IntVector2 pos = new IntVector2(tile.x, tile.y);
             toInstantiate = _prefabs[BrushType.TILE];
             var instance = InstantiateTile(toInstantiate, pos, preview);
-            instance.GetComponent<TileListener>().mainColor = new Color(tile.mainColor.r, tile.mainColor.g, tile.mainColor.b, tile.mainColor.a);
+            instance.GetComponent<TileListener>().swatchData = new ColorPickerPopup.SwatchData(tile.swatchData);
             //SetDeployZone(instance, tile.deployable);
             //instance.GetComponent<TileListener>().SetRoadProperty(tile.isRoad);
         }
@@ -1198,6 +1205,11 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         _brushType = BrushType.ERASER;
     }
 
+    public void SelectColorDropperBrush()
+    {
+        _brushType = BrushType.DROPPER;
+    }
+
     public void SelectSwatch1Brush()
     {
         _brushType = BrushType.TILE;
@@ -1206,7 +1218,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
     public void OverwriteTile(GameObject tile, GameObject prefab)
     {
         tile.GetComponent<SpriteRenderer>().sprite = prefab.GetComponent<SpriteRenderer>().sprite;
-        tile.GetComponent<TileListener>().mainColor = MapEditorManager.singleton.currentBrushColor;
+        tile.GetComponent<TileListener>().swatchData = MapEditorManager.singleton.currentBrushSwatch;
         // remove road before changing terrain type, so if any road stuff needs to cleaned up, we still know whether or not the tile has a road... resetting to definition will overwrite that
         //tile.GetComponent<TileListener>().SetRoadProperty(false);
         //tile.GetComponent<TileListener>().terrain = TerrainDefinition.GetDefinition(prefab.GetComponent<TileListener>().terrainType);

@@ -72,14 +72,14 @@ namespace StageNine
 
     public class HSRDrawTile : HistoryStackRecord
     {
-        public Color newColor, oldColor;
+        public ColorPickerPopup.SwatchData newSwatch, oldSwatch;
         public IntVector2 location;
         public GameObject newPrefab, oldPrefab;
 
-        public HSRDrawTile(HistoryKeeper parent, Color color, IntVector2 tileLocation, GameObject prefab)
+        public HSRDrawTile(HistoryKeeper parent, ColorPickerPopup.SwatchData swatch, IntVector2 tileLocation, GameObject prefab)
             :base(parent)
         {
-            newColor = color;
+            newSwatch = swatch;
             location = tileLocation;
             newPrefab = prefab;
 
@@ -87,7 +87,7 @@ namespace StageNine
             if (tileCheck != null)
             {
                 oldPrefab = newPrefab; //TODO: make this consider terrain types/ animated types etc.
-                oldColor = tileCheck.GetComponent<TileListener>().mainColor;
+                oldSwatch = tileCheck.GetComponent<TileListener>().swatchData;
             }
             else
             {
@@ -101,11 +101,11 @@ namespace StageNine
             if(oldPrefab != null)
             {
                 MapManager.singleton.OverwriteTile(MapManager.singleton.GetTileAt(location), newPrefab);
-                MapManager.singleton.GetTileAt(location).GetComponent<TileListener>().mainColor = newColor;
+                MapManager.singleton.GetTileAt(location).GetComponent<TileListener>().swatchData = newSwatch;
             }
             else
             {
-                MapManager.singleton.InstantiateTile(newPrefab, location).GetComponent<TileListener>().mainColor = newColor;
+                MapManager.singleton.InstantiateTile(newPrefab, location).GetComponent<TileListener>().swatchData = newSwatch;
             }
         }
 
@@ -114,7 +114,7 @@ namespace StageNine
             if (oldPrefab != null)
             {
                 MapManager.singleton.OverwriteTile(MapManager.singleton.GetTileAt(location), oldPrefab);
-                MapManager.singleton.GetTileAt(location).GetComponent<TileListener>().mainColor = oldColor;
+                MapManager.singleton.GetTileAt(location).GetComponent<TileListener>().swatchData = oldSwatch;
             }
             else
             {
@@ -126,7 +126,7 @@ namespace StageNine
 
     public class HSREraseTile : HistoryStackRecord
     {
-        public Color oldColor;
+        public ColorPickerPopup.SwatchData oldSwatch;
         public IntVector2 location;
         public GameObject oldPrefab;
 
@@ -140,7 +140,7 @@ namespace StageNine
             {
                 //MapManager.BrushType oldType = tileCheck.GetComponent<TileListener>().
                 oldPrefab = MapManager.singleton.GetTilePrefabForType(MapManager.BrushType.TILE); //TODO: make this consider terrain types/ animated types etc.
-                oldColor = tileCheck.GetComponent<TileListener>().mainColor;
+                oldSwatch = tileCheck.GetComponent<TileListener>().swatchData;
             }
             else
             {
@@ -160,7 +160,7 @@ namespace StageNine
         {
             if (oldPrefab != null)
             {
-                MapManager.singleton.InstantiateTile(oldPrefab, location).GetComponent<TileListener>().mainColor = oldColor;
+                MapManager.singleton.InstantiateTile(oldPrefab, location).GetComponent<TileListener>().swatchData = oldSwatch;
             }
         }
     }

@@ -46,7 +46,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     private MapManager.ToolPalette lastSelectedTool = MapManager.ToolPalette.POINT;
     private int lastSelectedSwatch = 0;
 
-    public Color currentBrushColor;
+    public ColorPickerPopup.SwatchData currentBrushSwatch;
 
     #region public methods
 #if UNITY_STANDALONE
@@ -283,8 +283,8 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     public void PressedSwatchButton(int button )
     {
-        currentBrushColor = swatchData[(int)button].color;
-        terrainBrushesButton.GetComponent<Image>().color = currentBrushColor;
+        currentBrushSwatch = swatchData[(int)button];
+        terrainBrushesButton.GetComponent<Image>().color = currentBrushSwatch.color;
         MapManager.singleton.SelectSwatch1Brush();
         SetColorSwatchPanelActive(false);
         lastSelectedSwatch = button;
@@ -318,6 +318,14 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     {
         lastSelectedTool = MapManager.ToolPalette.LINE;
         MapManager.singleton.currentTool = lastSelectedTool;
+        ResetToLastColor();
+        CloseSubPanels();
+    }
+
+    public void PressedDropperToolButton()
+    {
+        MapManager.singleton.SelectColorDropperBrush();
+        MapManager.singleton.currentTool = MapManager.ToolPalette.POINT;
         ResetToLastColor();
         CloseSubPanels();
     }
@@ -534,8 +542,8 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     private void ResetToLastColor()
     {
-        currentBrushColor = swatchData[lastSelectedSwatch].color;
-        terrainBrushesButton.GetComponent<Image>().color = currentBrushColor;
+        currentBrushSwatch = swatchData[lastSelectedSwatch];
+        terrainBrushesButton.GetComponent<Image>().color = currentBrushSwatch.color;
         MapManager.singleton.SelectSwatch1Brush();
         SetColorSwatchPanelActive(false);
     }

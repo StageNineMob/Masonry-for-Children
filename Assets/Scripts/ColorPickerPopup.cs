@@ -74,6 +74,23 @@ public class ColorPickerPopup : ModalPopup
             _color = copy._color;
             _brightColor = copy._brightColor;
         }
+
+        public SwatchData(SerializableSwatch copy)
+        {
+            _value = copy.v;
+            coords = new Vector2(copy.x, copy.y);
+        }
+    }
+    [Serializable] public class SerializableSwatch
+    {
+        public float x, y, v;
+
+        public SerializableSwatch(SwatchData copy)
+        {
+            x = copy.coords.x;
+            y = copy.coords.y;
+            v = copy.value;
+        }
     }
     //enums
 

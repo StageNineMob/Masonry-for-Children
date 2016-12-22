@@ -17,6 +17,7 @@ public class TileListener : MonoBehaviour
 
     public bool previewMap;
 
+    private ColorPickerPopup.SwatchData _swatchData;
     private Color _mainColor;
 
     private IntVector2 _gridPos;
@@ -60,16 +61,24 @@ public class TileListener : MonoBehaviour
         }
     }
 
+    public ColorPickerPopup.SwatchData swatchData
+    {
+        get
+        {
+            return _swatchData;
+        }
+        set
+        {
+            _swatchData = value;
+            GetComponent<SpriteRenderer>().color = _swatchData.color;
+        }
+    }
+
     public Color mainColor
     {
         get
         {
-            return _mainColor;
-        }
-        set
-        {
-            _mainColor = value;
-            GetComponent<SpriteRenderer>().color = _mainColor;
+            return _swatchData.color;
         }
     }
 
@@ -501,14 +510,15 @@ public class SerializableTile
 {
     public int x;
     public int y;
-    public SerializableColor mainColor;
+    public ColorPickerPopup.SerializableSwatch swatchData;
     //public TerrainDefinition.TerrainType type;
     //public CombatManager.Faction deployable;
     //public bool isRoad;
 
     public override string ToString()
     {
-        return "(" + x + ", " + y + "), "+ mainColor;
+        return "(" + x + ", " + y + ")";
+        //TODO: Add color data
     }
 }
 
