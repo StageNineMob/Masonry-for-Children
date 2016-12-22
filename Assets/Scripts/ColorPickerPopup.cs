@@ -103,6 +103,13 @@ public class ColorPickerPopup : ModalPopup
 
     //methods
     #region public methods
+
+#if UNITY_IOS || UNITY_ANDROID
+    public override void TouchScreenUpdate()
+    {
+    }
+#endif
+
     public override void BackButtonResponse()
     {
         PressedCancelButton();

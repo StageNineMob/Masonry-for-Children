@@ -494,7 +494,6 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     //}
 
 #if UNITY_STANDALONE
-
     private void MapPropertiesPressedEnterKey()
     {
         if (mapNameInputField.text == "")
@@ -513,6 +512,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         }
 
     }
+#endif
 
     public void ResetToLastTool()
     {
@@ -539,8 +539,6 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         MapManager.singleton.SelectSwatch1Brush();
         SetColorSwatchPanelActive(false);
     }
-#endif
-
     #endregion
 
     #region monobehaviors
