@@ -366,11 +366,6 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         {
             var highlightList = new List<IntVector2>();
             highlightList.Add(tilePos);
-            var symmetryPos = GetSymmetryTile(tilePos);
-            if(symmetryPos != tilePos)
-            {
-                highlightList.Add(symmetryPos);
-            }
             DrawBorderHighlights(highlightList);
         }
 
@@ -419,25 +414,13 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         switch(_currentTool)
         {
             case ToolPalette.POINT:
-                BrushTile(tilePos);
+                BrushTileSymmetry(tilePos);
                 if (lastTileBrushed != null && (lastTileBrushed - tilePos).magnitude > 1)
                     DrawLine(lastTileBrushed, tilePos);
-
                 // TODO: special case logic
-                var symmetryTile = GetSymmetryTile(tilePos);
-                if (symmetryTile != tilePos)
-                {
-                    BrushTile(symmetryTile);
-                }
                 break;
             case ToolPalette.LINE:
                 HighlightLine(firstTileBrushed, tilePos);
-                //TODO: do symmetry better?
-                if(GetSymmetryTile(firstTileBrushed) != firstTileBrushed || 
-                   GetSymmetryTile(tilePos) != tilePos)
-                {
-                    HighlightLine(GetSymmetryTile(firstTileBrushed), GetSymmetryTile(tilePos), true);
-                }
                 break;
             default:
                 // TODO: error message?
@@ -598,18 +581,13 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
     private void DrawLine(IntVector2 start, IntVector2 end)
     {
         BrushList(GetLine(start, end));
-        if (GetSymmetryTile(start) != start || GetSymmetryTile(end) != end)
-        {
-            BrushList(GetLine(GetSymmetryTile(start), GetSymmetryTile(end)));
-        }
-
     }
 
     private void BrushList(List<IntVector2> points)
     {
         foreach(var point in points)
         {
-            BrushTile(point);
+            BrushTileSymmetry(point);
         }
     }
 
@@ -635,6 +613,15 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         }
         isBrushing = false;
         undoRecords.Push(new HSRBatchEnd(this));
+    }
+
+    public void BrushTileSymmetry(IntVector2 tilePos)
+    {
+        BrushTile(tilePos);
+        if (GetSymmetryTile(tilePos) != tilePos)
+        {
+            BrushTile(GetSymmetryTile(tilePos));
+        }
     }
 
     public void BrushTile(IntVector2 tilePos)
@@ -1353,6 +1340,10 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         foreach(var pos in positions)
         {
             TileBorderHighlight(pos);
+            if (GetSymmetryTile(pos) != pos)
+            {
+                TileBorderHighlight(GetSymmetryTile(pos));
+            }
         }
     }
 
