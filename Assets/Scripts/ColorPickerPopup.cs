@@ -12,6 +12,7 @@ public class ColorPickerPopup : ModalPopup
         private float _value = 1;
         private Vector2 _coords;
         private Color _color;
+        private Color _brightColor;
 
         public float value
         {
@@ -22,8 +23,7 @@ public class ColorPickerPopup : ModalPopup
             set
             {
                 _value = value;
-                Color tempColor = ColorPickerPopup.singleton.GetColorFromWheel(_coords) * _value;
-                _color = new Color(tempColor.r, tempColor.g, tempColor.b);
+                _color = new Color(_brightColor.r * _value, _brightColor.g * _value, _brightColor.b * _value);
             }
         }
 
@@ -36,7 +36,9 @@ public class ColorPickerPopup : ModalPopup
             set
             {
                 _coords = value;
-                Color tempColor = ColorPickerPopup.singleton.GetColorFromWheel(_coords) * _value;
+                Color tempColor = ColorPickerPopup.singleton.GetColorFromWheel(_coords);
+                _brightColor = new Color(tempColor.r, tempColor.g, tempColor.b);
+                tempColor *= _value;
                 _color = new Color(tempColor.r, tempColor.g, tempColor.b);
             }
         }
@@ -49,11 +51,20 @@ public class ColorPickerPopup : ModalPopup
             }
         }
 
+        public Color brightColor
+        {
+            get
+            {
+                return _brightColor;
+            }
+        }
+
         public SwatchData()
         {
             _coords = new Vector2(.5f, .5f);
             _value = 1f;
             _color = Color.white;
+            _brightColor = Color.white;
         }
 
         public SwatchData(SwatchData copy)
@@ -61,6 +72,7 @@ public class ColorPickerPopup : ModalPopup
             _coords = copy._coords;
             _value = copy._value;
             _color = copy._color;
+            _brightColor = copy._brightColor;
         }
     }
     //enums
@@ -84,6 +96,7 @@ public class ColorPickerPopup : ModalPopup
     private Button[] swatchButtons;
     [SerializeField] 
     private Button swatchButton0, swatchButton1, swatchButton2, swatchButton3, swatchButton4, swatchButton5;
+    [SerializeField] private Image valueSliderBackground;
     private int selectedSwatch;
 
     //public properties
@@ -119,6 +132,7 @@ public class ColorPickerPopup : ModalPopup
         Vector2 texturePosition = ConvertToTexture(mousePosition);
         swatches[selectedSwatch].coords = ForceColorInbounds(texturePosition);
         UpdateButtonColor(selectedSwatch);
+        UpdateValueSliderBackgroundColor();
         UpdateReticle();
     }
 
@@ -137,6 +151,10 @@ public class ColorPickerPopup : ModalPopup
         selectedSwatchBorder.color = new Color (intensity, intensity, intensity);
     }
 
+    private void UpdateValueSliderBackgroundColor()
+    {
+        valueSliderBackground.color = swatches[selectedSwatch].brightColor;
+    }
     private void UpdateReticle()
     {
         Vector2 textureCoords = swatches[selectedSwatch].coords;
@@ -260,6 +278,7 @@ public class ColorPickerPopup : ModalPopup
         UpdateReticle();
         valueSlider.value = swatches[selectedSwatch].value;
         selectedSwatchBorder.transform.position = swatchButtons[selectedSwatch].transform.position;
+        UpdateValueSliderBackgroundColor();
         UpdateSwatchBorderColor();
     }
 
