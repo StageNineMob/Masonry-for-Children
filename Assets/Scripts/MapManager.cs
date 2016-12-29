@@ -37,6 +37,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         NONE,
         POINT,
         LINE,
+        DROPPER,
     }
 
     //subclasses
@@ -414,6 +415,9 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
 
         switch(_currentTool)
         {
+            case ToolPalette.DROPPER:
+                BrushTile(tilePos);
+                break;
             case ToolPalette.POINT:
                 BrushTileSymmetry(tilePos);
                 if (lastTileBrushed != null && (lastTileBrushed - tilePos).magnitude > 1)
@@ -650,7 +654,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
                 case BrushType.DROPPER:
                     {
                         var tile = GetTileAt(tilePos);
-                        //tile.GetComponent<TileListener>().mainColor;
+                        MapEditorManager.singleton.OverwriteCurrentColor(tile.GetComponent<TileListener>().swatchData);
                         break;
                     }
                 case BrushType.NONE:
@@ -667,6 +671,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
             //
             switch(_brushType)
             {
+                case BrushType.DROPPER:
                 case BrushType.ERASER:
                     Debug.Log("[MapManager:GetBrush] No tile to erase or mod.");
                     break;

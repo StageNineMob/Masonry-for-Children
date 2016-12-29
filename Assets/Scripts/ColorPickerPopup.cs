@@ -146,7 +146,6 @@ public class ColorPickerPopup : ModalPopup
         MapEditorManager.singleton.SetSwatchButtonColors();
         EventManager.singleton.ReturnFocus();
         MapEditorManager.singleton.PressedSwatchButton(selectedSwatch);
-        MapEditorManager.singleton.ResetToLastTool();
         WorldInterfaceLayer.singleton.SetBrushMode();
     }
 

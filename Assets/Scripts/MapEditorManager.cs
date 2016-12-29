@@ -28,6 +28,7 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     [SerializeField] private GameObject panToolButton;
     [SerializeField] private GameObject brushToolButton;
     [SerializeField] private GameObject lineToolButton;
+    [SerializeField] private GameObject dropperToolButton;
     [SerializeField] private GameObject UIPanel;
 
     private UnityAction confirmPropertiesCallback;
@@ -285,7 +286,6 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     {
         currentBrushSwatch = swatchData[(int)button];
         terrainBrushesButton.GetComponent<Image>().color = currentBrushSwatch.color;
-        MapManager.singleton.SelectSwatch1Brush();
         SetColorSwatchPanelActive(false);
         lastSelectedSwatch = button;
         ResetToLastTool();
@@ -324,10 +324,19 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
 
     public void PressedDropperToolButton()
     {
-        MapManager.singleton.SelectColorDropperBrush();
-        MapManager.singleton.currentTool = MapManager.ToolPalette.POINT;
+        MapManager.singleton.currentTool = MapManager.ToolPalette.DROPPER;
         ResetToLastColor();
+        MapManager.singleton.SelectColorDropperBrush();
+        lastSelectedTool = MapManager.ToolPalette.DROPPER;
         CloseSubPanels();
+    }
+
+    public void OverwriteCurrentColor(ColorPickerPopup.SwatchData newSwatch)
+    {
+        currentBrushSwatch = new ColorPickerPopup.SwatchData(newSwatch);
+        swatchData[lastSelectedSwatch] = currentBrushSwatch;
+        SetSwatchButtonColors();
+        terrainBrushesButton.GetComponent<Image>().color = currentBrushSwatch.color;
     }
 
     //public void MapNameFieldChanged(string blank)
@@ -530,9 +539,15 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         {
             case MapManager.ToolPalette.POINT:
                 MoveCheckMark(brushToolButton);
+                MapManager.singleton.SelectSwatch1Brush();
                 break;
             case MapManager.ToolPalette.LINE:
                 MoveCheckMark(lineToolButton);
+                MapManager.singleton.SelectSwatch1Brush();
+                break;
+            case MapManager.ToolPalette.DROPPER:
+                MoveCheckMark(dropperToolButton);
+                MapManager.singleton.SelectColorDropperBrush();
                 break;
             default:
                 Debug.LogError("[MapEditorManager:ResetToLastTool] Invalid lastSelectedTool");
