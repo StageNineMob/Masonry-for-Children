@@ -98,6 +98,8 @@ public class ColorPickerPopup : ModalPopup
 
     //consts and static data
     public static ColorPickerPopup singleton;
+    public const int NUM_SWATCHES = 6;
+    public const int BACKGROUND_SWATCH = 6;
 
     //public data
 
@@ -109,10 +111,11 @@ public class ColorPickerPopup : ModalPopup
 
     //private data
 
+
     private SwatchData[] swatches;
     private Button[] swatchButtons;
     [SerializeField] 
-    private Button swatchButton0, swatchButton1, swatchButton2, swatchButton3, swatchButton4, swatchButton5;
+    private Button swatchButton0, swatchButton1, swatchButton2, swatchButton3, swatchButton4, swatchButton5, backgroundSwatchButton;
     [SerializeField] private Image valueSliderBackground;
     private int selectedSwatch;
 
@@ -134,18 +137,23 @@ public class ColorPickerPopup : ModalPopup
 
     public void PressedCancelButton()
     {
+        Camera.main.backgroundColor = MapEditorManager.singleton.backgroundSwatch.color;
         EventManager.singleton.ReturnFocus();
     }
 
     public void PressedConfirmButton()
     {
-        for(int ii = 0; ii < 6; ii++)
+        for(int ii = 0; ii < NUM_SWATCHES; ii++)
         {
             MapEditorManager.singleton.swatchData[ii] = swatches[ii];
         }
+        MapEditorManager.singleton.backgroundSwatch = swatches[BACKGROUND_SWATCH];
         MapEditorManager.singleton.SetSwatchButtonColors();
         EventManager.singleton.ReturnFocus();
-        MapEditorManager.singleton.PressedSwatchButton(selectedSwatch);
+        if(selectedSwatch != BACKGROUND_SWATCH)
+        {
+            MapEditorManager.singleton.PressedSwatchButton(selectedSwatch);
+        }
         WorldInterfaceLayer.singleton.SetBrushMode();
     }
 
@@ -164,6 +172,8 @@ public class ColorPickerPopup : ModalPopup
         swatchButtons[swatchNumber].GetComponent<Image>().color = swatches[swatchNumber].color;
         if (swatchNumber == selectedSwatch)
             UpdateSwatchBorderColor();
+        if (swatchNumber == BACKGROUND_SWATCH)
+            Camera.main.backgroundColor = swatches[swatchNumber].color;
     }
 
     private void UpdateSwatchBorderColor()
@@ -312,11 +322,13 @@ public class ColorPickerPopup : ModalPopup
 
     public void InitializeAllSwatches()
     {
-        for(int ii = 0; ii < 6; ii++)
+        for(int ii = 0; ii < NUM_SWATCHES; ii++)
         {
             swatches[ii] = new SwatchData(MapEditorManager.singleton.swatchData[ii]);
             UpdateButtonColor(ii);
         }
+        swatches[BACKGROUND_SWATCH] = new SwatchData(MapEditorManager.singleton.backgroundSwatch);
+        UpdateButtonColor(BACKGROUND_SWATCH);
     }
 
     public Color GetColorFromWheel(Vector2 coords)
@@ -340,18 +352,19 @@ public class ColorPickerPopup : ModalPopup
         {
             Debug.Log("ColorPickerPopup checking in.");
             singleton = this;
-            swatches = new SwatchData[6];
-            for (int ii = 0; ii < 6; ++ii)
+            swatches = new SwatchData[NUM_SWATCHES + 1];
+            for (int ii = 0; ii <= NUM_SWATCHES; ++ii)
             {
                 swatches[ii] = new SwatchData();
             }
-            swatchButtons = new Button[6];
+            swatchButtons = new Button[NUM_SWATCHES + 1];
             swatchButtons[0] = swatchButton0;
             swatchButtons[1] = swatchButton1;
             swatchButtons[2] = swatchButton2;
             swatchButtons[3] = swatchButton3;
             swatchButtons[4] = swatchButton4;
             swatchButtons[5] = swatchButton5;
+            swatchButtons[6] = backgroundSwatchButton;
             selectedSwatch = 0;
             gameObject.SetActive(false);
         }
