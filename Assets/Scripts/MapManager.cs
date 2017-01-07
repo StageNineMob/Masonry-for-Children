@@ -123,6 +123,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
 
     public string mapName = "", previewMapName = "";
     public uint armyPointLimit = 0, previewArmyPointLimit = 0;
+    public ColorPickerPopup.SwatchData backgroundSwatch;
 
     [SerializeField]private string _currentMapFileName;
     private Dictionary<IntVector2, GameObject> mapTiles = new Dictionary<IntVector2, GameObject>(), mapPreviewTiles = new Dictionary<IntVector2, GameObject>();
@@ -1065,6 +1066,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         //map.mapName = mapName;
         //map.armyPointLimit = armyPointLimit;
         //Debug.Log("[MapManager:SaveCurrentMap] Saved Map Name: " + map.mapName);
+        map.background = new ColorPickerPopup.SerializableSwatch (backgroundSwatch);
         map.tiles = new SerializableTile[mapTiles.Count];
         int ii = 0;
         foreach (var pair in mapTiles)
@@ -1121,10 +1123,13 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         {
             ClearTileHolder();
             ResetHistoryKeeper();
+            backgroundSwatch = new ColorPickerPopup.SwatchData(load.background);
+            Camera.main.backgroundColor = backgroundSwatch.color;
         }
         else
         {
             ClearTileHolder(PREVIEW_MODE);
+            previewCamera.backgroundColor = new ColorPickerPopup.SwatchData(load.background).color;
         }
         foreach (var tile in load.tiles)
         {
@@ -1190,6 +1195,9 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
     public void CreateNewMap()
     {
         ClearTileHolder();
+        backgroundSwatch.coords = new Vector2(0.3f, 0.3f);
+        backgroundSwatch.value = 0.49f;
+        Camera.main.backgroundColor = backgroundSwatch.color;
         ResetHistoryKeeper();
 
         //recenter the camera
@@ -1852,6 +1860,7 @@ public class MapManager : MonoBehaviour, HistoryKeeper {
         lastMouseOver = null;
         undoRecords = new Stack<HistoryStackRecord>();
         redoRecords = new Stack<HistoryStackRecord>();
+        backgroundSwatch = new ColorPickerPopup.SwatchData();
     }
 
     private void ClearBorderHighlights()
@@ -1927,6 +1936,7 @@ public class SerializableMap
     //public string mapName;
     //public uint armyPointLimit;
     public SerializableTile[] tiles;
+    public ColorPickerPopup.SerializableSwatch background;
 
     #region public methods
     public override string ToString()

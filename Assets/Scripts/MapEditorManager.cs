@@ -43,7 +43,6 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
     private GameObject[] swatchButtons;
 
     public ColorPickerPopup.SwatchData[] swatchData;
-    public ColorPickerPopup.SwatchData backgroundSwatch;
 
     private MapManager.ToolPalette lastSelectedTool = MapManager.ToolPalette.POINT;
     private int lastSelectedSwatch = 0;
@@ -154,11 +153,6 @@ public class MapEditorManager : MonoBehaviour, IModalFocusHolder
         swatchData[5] = new ColorPickerPopup.SwatchData();
         swatchData[5].coords = new Vector2(0.75f, 1f);
         swatchData[5].value = 1f;
-
-        backgroundSwatch = new ColorPickerPopup.SwatchData();
-        backgroundSwatch.coords = new Vector2(0.3f, 0.3f);
-        backgroundSwatch.value = 0.49f;
-        Camera.main.backgroundColor = backgroundSwatch.color;
 
         swatchButtons[0] = swatchButton0;
         swatchButtons[1] = swatchButton1;

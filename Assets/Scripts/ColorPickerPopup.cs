@@ -137,7 +137,7 @@ public class ColorPickerPopup : ModalPopup
 
     public void PressedCancelButton()
     {
-        Camera.main.backgroundColor = MapEditorManager.singleton.backgroundSwatch.color;
+        Camera.main.backgroundColor = MapManager.singleton.backgroundSwatch.color;
         EventManager.singleton.ReturnFocus();
     }
 
@@ -147,7 +147,7 @@ public class ColorPickerPopup : ModalPopup
         {
             MapEditorManager.singleton.swatchData[ii] = swatches[ii];
         }
-        MapEditorManager.singleton.backgroundSwatch = swatches[BACKGROUND_SWATCH];
+        MapManager.singleton.backgroundSwatch = swatches[BACKGROUND_SWATCH];
         MapEditorManager.singleton.SetSwatchButtonColors();
         EventManager.singleton.ReturnFocus();
         if(selectedSwatch != BACKGROUND_SWATCH)
@@ -327,7 +327,7 @@ public class ColorPickerPopup : ModalPopup
             swatches[ii] = new SwatchData(MapEditorManager.singleton.swatchData[ii]);
             UpdateButtonColor(ii);
         }
-        swatches[BACKGROUND_SWATCH] = new SwatchData(MapEditorManager.singleton.backgroundSwatch);
+        swatches[BACKGROUND_SWATCH] = new SwatchData(MapManager.singleton.backgroundSwatch);
         UpdateButtonColor(BACKGROUND_SWATCH);
     }
 
