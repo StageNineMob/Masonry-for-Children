@@ -210,8 +210,8 @@ public class FileViewer : MonoBehaviour
 
                     if (MapManager.singleton.LoadMap(filename, MapManager.PREVIEW_MODE))
                     {
-                        textToPrint += MapManager.singleton.previewMapName + Environment.NewLine;
-                        textToPrint += Environment.NewLine + "Point Limit: " + MapManager.singleton.previewArmyPointLimit;
+                        //textToPrint += MapManager.singleton.previewMapName + Environment.NewLine;
+                        //textToPrint += Environment.NewLine + "Point Limit: " + MapManager.singleton.previewArmyPointLimit;
                         metadataText.text = textToPrint;
 
                         var previewTexture = MapManager.singleton.MapPreview(MapManager.PREVIEW_MODE);
